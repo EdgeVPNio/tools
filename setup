@@ -4,7 +4,6 @@ CONTROLLER=https://github.com/EdgeVPNio/controller
 TINCAN=https://github.com/EdgeVPNio/tincan
 EXLIBS=https://github.com/ipop-project/3rd-Party-Libs.git
 PYVER=3.6
-EVIOVER=_20.7_amd64
 
 function install_build_tools
 {
@@ -34,11 +33,17 @@ function make_tincan
 
 function make_debpak
 {
-  cp -r ../controller/* debian-package/edge-vpnio/opt/edge-vpnio/ && \
-    cp ../tincan/trunk/out/release/x86_64/tincan debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  cp -r ../evio/controller/* debian-package/edge-vpnio/opt/edge-vpnio/ && \
+    cp ../evio/tincan/trunk/out/release/x86_64/tincan debian-package/edge-vpnio/opt/edge-vpnio/ && \
     chmod +x debian-package/edge-vpnio/opt/edge-vpnio/tincan && \
-    ./deb-gen
-
+    wd=$(pwd) && cd debian-package/ && \
+    ./deb-gen && \
+    rm -rf edge-vpnio/opt/edge-vpnio/framework \
+      edge-vpnio/opt/edge-vpnio/modules \
+      edge-vpnio/opt/edge-vpnio/tincan \
+      edge-vpnio/opt/edge-vpnio/template-config.json \
+      edge-vpnio/opt/edge-vpnio/Controller.py && \
+      cd $wd
 }
 
 function make_testbed_prereqs
@@ -78,8 +83,8 @@ function make_dkrimg
 {
   rm -f docker-image/edge-vpnio_20.7_amd64.deb
   mv debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
-    docker build -f ./docker-image/evio-base.Dockerfile -t kcratie/evio-base:1.0 ./docker-image && \
-    docker build -f ./docker-image/evio-node.Dockerfile -t kcratie/evio-node:20.7 ./docker-image
+    docker build -f ./docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 ./docker-image && \
+    docker build -f ./docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7 ./docker-image
 }
 
 function install_openfire
@@ -114,20 +119,23 @@ function do_full_setup
 }
 
 case $1 in
+  src)
+    pull_src
+    ;;
+  tincan)
+    make_tincan
+    ;;
+  debpak)
+    make_debpak
+    ;;
+  dkrimg)
+    make_dkrimg
+    ;;
   testbed)
     make_testbed_prereqs
     ;;
   venv)
     make_venv
-    ;;
-  img)
-    make_dkrimg
-    ;;
-  tincan)
-    make_tincan
-    ;;
-  src)
-    pull_src
     ;;
   xmpp)
     install_openfire
