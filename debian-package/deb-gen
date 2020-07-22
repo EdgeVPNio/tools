@@ -1,0 +1,18 @@
+#!/bin/sh
+
+cat <<! > edge-vpnio/DEBIAN/control
+Package: edge-vpnio
+Name: EdgeVPNio
+Version: 20.7
+Maintainer: <ip.over.p2p@gmail.com>
+Architecture: $(dpkg --print-architecture)
+Homepage: http://edgevpnio.github.io
+Depends: python3, python3-dev, python3-pip, iproute2, openvswitch-switch, bridge-utils
+Description: Virtual Overlay Networks.
+ EdgeVPN is an open-source user-centric software virtual network allowing end users to define and create their own virtual private networks (VPNs). EdgeVPNio virtual networks provide end-to-end tunneling of IP or Ethernet over Tincan links setup and managed through a control API to create various software-defined VPN overlays.
+Tag: P2P Overlay Networking
+!
+cp edge-vpnio/opt/edge-vpnio/template-config.json edge-vpnio/etc/opt/edge-vpnio/config.json
+dpkg-deb --build --root-owner-group edge-vpnio .
+
+rm edge-vpnio/DEBIAN/control edge-vpnio/etc/opt/edge-vpnio/config.json

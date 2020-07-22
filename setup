@@ -1,0 +1,141 @@
+#!/bin/bash
+
+CONTROLLER=https://github.com/EdgeVPNio/controller
+TINCAN=https://github.com/EdgeVPNio/tincan
+EXLIBS=https://github.com/ipop-project/3rd-Party-Libs.git
+PYVER=3.6
+EVIOVER=_20.7_amd64
+
+function install_build_tools
+{
+  sudo bash -c "
+    apt-get update -y && \
+    apt-get install -y build-essential
+    "  
+}
+
+function pull_src
+{
+  git clone $CONTROLLER ..
+  git clone $TINCAN ..
+  wd=$(pwd)
+  cd ../evio/tincan/external
+  git clone -b ubuntu-x64 --single-branch https://github.com/ipop-project/3rd-Party-Libs.git
+  cd $wd
+}
+
+function make_tincan
+{
+  wd=$(pwd)
+  cd ../evio/tincan/trunk/build
+  make clean; make
+  cd $wd
+}
+
+function make_debpak
+{
+  cp -r ../controller/* debian-package/edge-vpnio/opt/edge-vpnio/ && \
+    cp ../tincan/trunk/out/release/x86_64/tincan debian-package/edge-vpnio/opt/edge-vpnio/ && \
+    chmod +x debian-package/edge-vpnio/opt/edge-vpnio/tincan && \
+    ./deb-gen
+
+}
+
+function make_testbed_prereqs
+{
+  sudo bash -c "
+    apt-get update -y && \
+    apt-get install -y openvswitch-switch \
+                        python$PYVER python3-pip python3-venv python3-dev \
+                        apt-transport-https \
+                        ca-certificates \
+                        curl git \
+                        software-properties-common && \
+
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+    add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable\" && \
+    apt-cache policy docker-ce && \
+    apt-get install -y containerd.io \
+                       docker-ce-cli \
+                       docker-ce && \
+    groupadd -f docker && \
+    usermod -a -G docker $USER \
+  "
+  echo "You must logout and relogin for docker group membership to take effect."
+}
+
+function make_venv
+{
+  wd=$(pwd)
+  cd testbed && \
+    python$PYVER -m venv venv && \
+    source venv/bin/activate && \
+    pip3 install simplejson
+  cd $wd
+}
+
+function make_dkrimg
+{
+  rm -f docker-image/edge-vpnio_20.7_amd64.deb
+  mv debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
+    docker build -f ./docker-image/evio-base.Dockerfile -t kcratie/evio-base:1.0 ./docker-image && \
+    docker build -f ./docker-image/evio-node.Dockerfile -t kcratie/evio-node:20.7 ./docker-image
+}
+
+function install_openfire
+{
+  docker run --name openfire -d \
+    -p 9090:9090 -p 5222:5222 \
+    -p 5269:5269 -p 5223:5223 \
+    -p 7443:7443 -p 7777:7777 \
+    -p 7070:7070 -p 5229:5229 \
+    -p 5275:5275 \
+    edgevpnio/openfire_edgevpn_demo
+}
+
+function install_netviz
+{
+  #Todo: visualizer not yet available
+  git clone https://github.com/edgevpnio/portal.git
+  cd portal/setup
+  ./setup.sh
+  chown -R $USER /users/$USER/  
+}
+
+function do_full_setup
+{
+  install_build_tools
+  pull_src
+  make_tincan
+  make_debpak
+  make_dkrimg
+  make_testbed_prereqs
+  make_venv
+}
+
+case $1 in
+  testbed)
+    make_testbed_prereqs
+    ;;
+  venv)
+    make_venv
+    ;;
+  img)
+    make_dkrimg
+    ;;
+  tincan)
+    make_tincan
+    ;;
+  src)
+    pull_src
+    ;;
+  xmpp)
+    install_openfire
+    ;;
+  all)
+    do_full_setup
+    ;;
+  *)
+    echo "no match on input -> $1"
+    ;;
+esac

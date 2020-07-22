@@ -1,0 +1,12 @@
+#!/bin/bash
+
+systemctl -q is-active evio && systemctl -q stop evio || true
+systemctl -q is-enabled evio && systemctl -q disable evio || true
+rm -rf /opt/edge-vpnio/venv
+if [ -d /opt/edge-vpnio/controller ]; then
+  for dir in $(find /opt/edge-vpnio/controller -type d -name __pycache__); do
+     rm -rf "$dir"
+  done
+fi
+exit 0
+
