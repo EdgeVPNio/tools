@@ -81,10 +81,10 @@ function make_venv
 
 function make_dkrimg
 {
-  rm -f docker-image/edge-vpnio_20.7_amd64.deb
   mv debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
     docker build -f ./docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 ./docker-image && \
-    docker build -f ./docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7 ./docker-image
+    docker build -f ./docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7 ./docker-image && \
+    rm -f docker-image/edge-vpnio_20.7_amd64.deb
 }
 
 function install_openfire
@@ -98,7 +98,7 @@ function install_openfire
     edgevpnio/openfire_edgevpn_demo
 }
 
-function install_netviz
+function install_portal
 {
   #Todo: visualizer not yet available
   git clone https://github.com/edgevpnio/portal.git
