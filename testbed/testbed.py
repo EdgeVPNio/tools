@@ -22,7 +22,7 @@ class Testbed():
     VIRT = NotImplemented
     APT = spawn.find_executable("apt-get")
     CONTAINER = NotImplemented
-    BF_VIRT_IMG = "kcratie/evio-node:20.7"
+    BF_VIRT_IMG = "edgevpnio/evio-node:20.7"
 
     def __init__(self, exp_dir=None):
         parser = argparse.ArgumentParser(description="Configures and runs EdgeVPN Testbed")
