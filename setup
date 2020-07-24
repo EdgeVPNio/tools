@@ -1,7 +1,6 @@
 #!/bin/bash
 
-CONTROLLER=https://github.com/EdgeVPNio/controller
-TINCAN=https://github.com/EdgeVPNio/tincan
+EVIO=https://github.com/EdgeVPNio/evio.git
 EXLIBS=https://github.com/ipop-project/3rd-Party-Libs.git
 PYVER=3.6
 
@@ -9,16 +8,15 @@ function install_build_tools
 {
   sudo bash -c "
     apt-get update -y && \
-    apt-get install -y build-essential
-    "  
+    apt-get install -y build-essential"  
 }
 
 function pull_src
 {
-  git clone $CONTROLLER ..
-  git clone $TINCAN ..
   wd=$(pwd)
-  cd ../evio/tincan/external
+  cd ..
+  git clone $EVIO
+  cd evio/tincan/external
   git clone -b ubuntu-x64 --single-branch https://github.com/ipop-project/3rd-Party-Libs.git
   cd $wd
 }
@@ -83,8 +81,8 @@ function make_dkrimg
 {
   mv debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
     docker build -f ./docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 ./docker-image && \
-    docker build -f ./docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7 ./docker-image && \
-    rm -f docker-image/edge-vpnio_20.7_amd64.deb
+    docker build -f ./docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7 ./docker-image
+    
 }
 
 function install_openfire
@@ -105,6 +103,32 @@ function install_portal
   cd portal/setup
   ./setup.sh
   chown -R $USER /users/$USER/  
+}
+
+function do_clean
+{
+  # tincan
+  wd=$(pwd)
+  cd ../evio/tincan/trunk/build
+  make clean;
+  cd $wd
+  #debian pak
+  cd debian-package/ && \
+  rm -ri ./edge-vpnio_20.7_amd64.deb \
+    edge-vpnio/opt/edge-vpnio/framework \
+    edge-vpnio/opt/edge-vpnio/modules \
+    edge-vpnio/opt/edge-vpnio/tincan \
+    edge-vpnio/opt/edge-vpnio/template-config.json \
+    edge-vpnio/opt/edge-vpnio/Controller.py && \
+  cd $wd  
+  # docker-image
+  rm -f docker-image/edge-vpnio_20.7_amd64.deb
+  docker rmi edgevpnio/evio-base:1.0 edgevpnio/evio-node:20.7
+  docker rmi $(docker images -q --filter "dangling=true")
+  # testbed
+  cd testbed
+  rm -rf config log cert venv
+  cd $wd
 }
 
 function do_full_setup
@@ -139,6 +163,9 @@ case $1 in
     ;;
   xmpp)
     install_openfire
+    ;;
+  clean)
+    do_clean
     ;;
   all)
     do_full_setup
