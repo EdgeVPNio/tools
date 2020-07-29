@@ -5,7 +5,7 @@
     "NodeId": "a100###feb6040628e5fb7e70b04f###"
   },
   "Logger": {
-    "LogLevel": "DEBUG",
+    "LogLevel": "INFO",
     "Device": "File",
     "Directory": "/var/log/edge-vpnio/",
     "CtrlLogFileName": "ctrl.log",
@@ -17,7 +17,7 @@
     "Enabled": true,
     "Overlays": {
       "A1A111A": {
-        "HostAddress": "*.*.*.*",
+        "HostAddress": "",
         "AuthenticationMethod": "PASSWORD",
         "Port": "5222",
         "Username": "test1@openfire.local",
@@ -103,5 +103,10 @@
             }
         }
     }
+  },
+  "UsageReport": {
+    "Enabled": true,
+    "TimerInterval": 86400,
+    "WebService": "https://qdscz6pg37.execute-api.us-west-2.amazonaws.com/default/EvioUsageReport"
   }
 }
