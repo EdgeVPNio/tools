@@ -1,0 +1,12 @@
+testbed/range_file
+testbed/startup.list
+testbed/venv/
+testbed/cert
+testbed/config
+testbed/log
+*.deb
+.vscode/
+
+
+__pycache__/
+*.py[cod]
