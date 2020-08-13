@@ -6,8 +6,8 @@ RUN apt-get update -y && apt-get install -y \
     psmisc \
     iputils-ping \
     nano \
-    python3.6 \
-    python3.6-dev \
+    python3.8 \
+    python3-dev \
     python3-pip \
     python3-venv \
     iproute2 \
