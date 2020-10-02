@@ -1,0 +1,294 @@
+#!/bin/bash
+
+EVIO=https://github.com/EdgeVPNio/evio.git
+#EXLIBS=https://github.com/ipop-project/3rd-Party-Libs.git
+PY=python3.8
+
+function install_build_tools
+{
+  sudo bash -c "
+    apt-get update -y && \
+    apt-get install -y git \
+    make clang libc++-dev libssl-dev $PY"  
+}
+
+function pull_src
+{
+  wd=$(pwd)
+  cd ..
+  #stat evio dir clone or pull
+  git clone $EVIO
+  cd evio/tincan/external
+  #
+  git clone -b ubuntu-x64 --single-branch https://github.com/ipop-project/3rd-Party-Libs.git
+  cd $wd
+}
+
+function make_tincan
+{
+  wd=$(pwd)
+  cd ../evio/tincan/trunk/build
+  make clean; make
+  cd $wd
+}
+
+function make_debpak
+{
+  wd=$(pwd)
+  cp ../evio/controller/Controller.py debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  mkdir -p debian-package/edge-vpnio/etc/opt/edge-vpnio/
+  cp ../evio/controller/template-config.json debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
+  cp -r ../evio/controller/modules/ ../evio/controller/framework/ debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  chmod 0775 debian-package/edge-vpnio/opt/edge-vpnio/framework/ && \
+  chmod 0664 debian-package/edge-vpnio/opt/edge-vpnio/framework/* && \
+  chmod 0775 debian-package/edge-vpnio/opt/edge-vpnio/modules/ && \
+  chmod 0664 debian-package/edge-vpnio/opt/edge-vpnio/modules/* && \
+  chmod 0664 debian-package/edge-vpnio/opt/edge-vpnio/Controller.py && \
+  chmod 0664 debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
+  cp ../evio/tincan/trunk/out/release/x86_64/tincan debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  chmod 0775 debian-package/edge-vpnio/opt/edge-vpnio/tincan && \
+  cd debian-package/ && \
+  ./deb-gen && \
+  rm -rf edge-vpnio/opt/edge-vpnio/framework \
+    edge-vpnio/opt/edge-vpnio/modules \
+    edge-vpnio/opt/edge-vpnio/tincan \
+    edge-vpnio/opt/edge-vpnio/template-config.json \
+    edge-vpnio/opt/edge-vpnio/Controller.py \
+    edge-vpnio/etc/opt/edge-vpnio/config.json
+  cd $wd
+}
+
+function install_testbed_deps
+{
+  sudo bash -c "
+    apt-get update -y && \
+    apt-get install -y openvswitch-switch \
+                        $PY $PY-venv $PY-dev python3-pip \
+                        apt-transport-https \
+                        ca-certificates \
+                        curl git \
+                        software-properties-common && \
+
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+    add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable\" && \
+    apt-cache policy docker-ce && \
+    apt-get install -y containerd.io \
+                       docker-ce-cli \
+                       docker-ce && \
+    groupadd -f docker && \
+    usermod -a -G docker $USER \
+  "
+  echo "You must logout and relogin for docker group membership to take effect."
+}
+
+function make_venv
+{
+  wd=$(pwd)
+  cd ../testbed && \
+    $PY -m venv venv && \
+    source venv/bin/activate && \
+    pip3 install simplejson
+  cd $wd
+}
+
+function make_dkrimg
+{
+  mv debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
+    docker build -f ./../docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 ./docker-image && \
+    docker build -f ./../docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7.3 ./docker-image
+    
+}
+
+function install_openfire
+{
+  docker run --name openfire -d \
+    -p 9090:9090 -p 5222:5222 \
+    -p 5269:5269 -p 5223:5223 \
+    -p 7443:7443 -p 7777:7777 \
+    -p 7070:7070 -p 5229:5229 \
+    -p 5275:5275 \
+    edgevpnio/openfire_edgevpn_demo
+}
+
+function install_portal
+{
+  #Todo: visualizer not yet available
+  git clone https://github.com/edgevpnio/portal.git
+  cd portal/setup
+  ./setup.sh
+  chown -R $USER /users/$USER/  
+}
+
+function do_clean
+{
+  # tincan
+  wd=$(pwd)
+
+  cd ../../evio/tincan/trunk/build
+  make clean;
+  cd $wd
+  #debian pak
+  cd debian-package/ && \
+  rm -ri ./../edge-vpnio_20.7_amd64.deb \
+    edge-vpnio/opt/edge-vpnio/framework \
+    edge-vpnio/opt/edge-vpnio/modules \
+    edge-vpnio/opt/edge-vpnio/tincan \
+    edge-vpnio/opt/edge-vpnio/template-config.json \
+    edge-vpnio/opt/edge-vpnio/Controller.py && \
+  cd $wd  
+  # docker-image
+  rm -f docker-image/edge-vpnio_20.7_amd64.deb
+  docker rmi edgevpnio/evio-base:1.0 edgevpnio/evio-node:20.7
+  docker rmi $(docker images -q --filter "dangling=true")
+  # testbed
+  cd ../testbed
+  rm -rf config log cert venv
+  cd $wd
+}
+
+function build_webrtc
+{
+  wd=$(pwd)
+  cd scripts
+  chmod +x build_webrtc.sh get_archives.sh get_include.sh
+  ./build_webrtc.sh -b debug -t ubuntu
+  ./get_archives.sh -b debug -t ubuntu
+  ./get_include.sh -b debug -t ubuntu
+}
+
+function build_webrtc_with_release_ubuntu
+{
+  wd=$(pwd)
+  cd scripts
+  chmod +x build_webrtc.sh get_archives.sh get_include.sh
+  ./build_webrtc.sh -b release -t ubuntu
+  ./get_archives.sh -b release -t ubuntu
+  ./get_include.sh -b release -t ubuntu
+  cd $wd
+}
+
+function build_webrtc_with_debug_raspberry_pi
+{
+  wd=$(pwd)
+  cd scripts
+  chmod +x build_webrtc.sh get_archives.sh get_include.sh
+  ./build_webrtc.sh -b debug -t raspberry-pi
+  ./get_archives.sh -b debug -t raspberry-pi
+  ./get_include.sh -b debug -t raspberry-pi
+  cd $wd
+}
+
+function build_webrtc_with_release_raspberry_pi
+{
+  wd=$(pwd)
+  cd scripts
+  chmod +x build_webrtc.sh get_archives.sh get_include.sh
+  ./build_webrtc.sh -b release -t raspberry-pi
+  ./get_archives.sh -b release -t raspberry-pi
+  ./get_include.sh -b release -t raspberry-pi
+  cd $wd
+}
+
+function build_tincan {
+  wd=$(pwd)
+  cd scripts
+  chmod +x ./build_tincan.sh
+  ./build_tincan.sh  -b debug -t ubuntu
+  cd $wd
+}
+
+function build_tincan_release_ubuntu {
+  wd=$(pwd)
+  cd scripts
+  chmod +x ./build_tincan.sh
+  ./build_tincan.sh  -b release -t ubuntu
+  cd $wd
+}
+
+function build_tincan_debug_raspberry {
+  wd=$(pwd)
+  cd scripts
+  chmod +x ./build_tincan.sh
+  ./build_tincan.sh  -b debug -t raspberry-pi
+  cd $wd
+}
+
+function build_tincan_release_raspberry {
+  wd=$(pwd)
+  cd scripts
+  chmod +x ./build_tincan.sh
+  ./build_tincan.sh  -b debug -t raspberry-pi
+  cd $wd
+}
+
+function do_full_setup
+{
+  install_build_tools
+  pull_src
+  build_webrtc
+  build_tincan
+  make_debpak
+  make_dkrimg
+  make_testbed_prereqs
+  make_venv
+}
+
+case $1 in
+  deps)
+    install_build_tools
+    ;;
+  src)
+    pull_src
+    ;;
+  tincan)
+    build_tincan
+    ;;
+  debpak)
+    make_debpak
+    ;;
+  dkrimg)
+    make_dkrimg
+    ;;
+  testbed)
+    install_testbed_deps
+    ;;
+  venv)
+    make_venv
+    ;;
+  xmpp)
+    install_openfire
+    ;;
+  clean)
+    do_clean
+    ;;
+  build_webrtc)
+    build_webrtc
+    ;;
+  build_webrtc_with_release_ubuntu)
+    build_webrtc_with_release_ubuntu
+    ;;
+  build_webrtc_with_debug_raspberry_pi)
+    build_webrtc_with_debug_raspberry_pi
+    ;;
+  build_webrtc_with_release_raspberry_pi)
+    build_webrtc_with_release_raspberry_pi
+    ;;
+  build_tincan)
+    build_tincan
+    ;;
+  build_tincan_release_ubuntu)
+    build_tincan_release_ubuntu
+    ;;
+  build_tincan_debug_raspberry)
+    build_tincan_debug_raspberry
+    ;;
+  build_tincan_release_raspberry)
+    build_tincan_release_raspberry
+    ;;
+  all)
+    do_full_setup
+    ;;
+  *)
+    echo "no match on input -> $1"
+    ;;
+esac
