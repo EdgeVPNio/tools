@@ -1,1 +1,0 @@
-./scripts/evtool-v20.7.2

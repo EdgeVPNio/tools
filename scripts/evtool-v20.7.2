@@ -1,7 +1,7 @@
 #!/bin/bash
 
 EVIO=https://github.com/EdgeVPNio/evio.git
-#EXLIBS=https://github.com/ipop-project/3rd-Party-Libs.git
+EXLIBS=https://github.com/ipop-project/3rd-Party-Libs.git
 PY=python3.8
 
 function install_build_tools
@@ -35,19 +35,23 @@ function make_tincan
 function make_debpak
 {
   wd=$(pwd)
-  cp ../evio/controller/Controller.py debian-package/edge-vpnio/opt/edge-vpnio/ && \
-  mkdir -p debian-package/edge-vpnio/etc/opt/edge-vpnio/
-  cp ../evio/controller/template-config.json debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
-  cp -r ../evio/controller/modules/ ../evio/controller/framework/ debian-package/edge-vpnio/opt/edge-vpnio/ && \
-  chmod 0775 debian-package/edge-vpnio/opt/edge-vpnio/framework/ && \
-  chmod 0664 debian-package/edge-vpnio/opt/edge-vpnio/framework/* && \
-  chmod 0775 debian-package/edge-vpnio/opt/edge-vpnio/modules/ && \
-  chmod 0664 debian-package/edge-vpnio/opt/edge-vpnio/modules/* && \
-  chmod 0664 debian-package/edge-vpnio/opt/edge-vpnio/Controller.py && \
-  chmod 0664 debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
-  cp ../evio/tincan/trunk/out/release/x86_64/tincan debian-package/edge-vpnio/opt/edge-vpnio/ && \
-  chmod 0775 debian-package/edge-vpnio/opt/edge-vpnio/tincan && \
-  cd debian-package/ && \
+  cd ../../..
+  mkdir -p out
+  cd $wd
+  cp ../debian-package ../../../out
+  cp ../evio/controller/Controller.py ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  mkdir -p ../../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/
+  cp ../evio/controller/template-config.json ../../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
+  cp -r ../evio/controller/modules/ ../evio/controller/framework/ ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  chmod 0775 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/framework/ && \
+  chmod 0664 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/framework/* && \
+  chmod 0775 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/modules/ && \
+  chmod 0664 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/modules/* && \
+  chmod 0664 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/Controller.py && \
+  chmod 0664 ../../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
+  cp ../evio/tincan/trunk/out/release/x86_64/tincan ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  chmod 0775 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/tincan && \
+  cd ../../../out/debian-package/ && \
   ./deb-gen && \
   rm -rf edge-vpnio/opt/edge-vpnio/framework \
     edge-vpnio/opt/edge-vpnio/modules \
@@ -128,8 +132,8 @@ function do_clean
   make clean;
   cd $wd
   #debian pak
-  cd debian-package/ && \
-  rm -ri ./../edge-vpnio_20.7_amd64.deb \
+  cd ../debian-package/ && \
+  rm -ri ./edge-vpnio_20.7_amd64.deb \
     edge-vpnio/opt/edge-vpnio/framework \
     edge-vpnio/opt/edge-vpnio/modules \
     edge-vpnio/opt/edge-vpnio/tincan \

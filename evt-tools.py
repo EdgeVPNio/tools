@@ -28,24 +28,24 @@ class EvtTools:
                             help="Install openfire server.")
         parser.add_argument("--build_docker", action="store_true", default=False, dest="dkrimg",
                             help="Builds the docker image if you have already built the debian package.")
-        parser.add_argument("--build_webrtc", action="store_true", default=False, dest="webrtc",
+        parser.add_argument("--build_wrtc", action="store_true", default=False, dest="webrtc",
                             help="Clones and builds the webrtc libraries for ubuntu and returns a debug build.")
-        parser.add_argument("--build_webrtc_release", action="store_true", default=False, dest="webrtc_r",
+        parser.add_argument("--build_wrtc_rel", action="store_true", default=False, dest="webrtc_r",
                             help="Clones and builds the webrtc libraries for ubuntu and returns a release build.")
-        parser.add_argument("--build_webrtc_raspberry_debug", action="store_true", default=False, dest="webrtc_r_d",
+        parser.add_argument("--build_wrtc_rpi_dbg", action="store_true", default=False, dest="webrtc_r_d",
                             help="Clones and builds the webrtc libraries for raspberry and returns a debug build.")
-        parser.add_argument("--build_webrtc_raspberry_release", action="store_true", default=False, dest="webrtc_r_r",
+        parser.add_argument("--build_wrtc_rpi_rel", action="store_true", default=False, dest="webrtc_r_r",
                             help="Clones and builds the webrtc libraries for raspberry and returns a release build.")
         parser.add_argument("--build_tincan", action="store_true", default=False, dest="tincan",
                             help="Builds the tincan debug executable for ubuntu. It assumes you have the webrtc "
                                  "libraries already cloned or built")
-        parser.add_argument("--build_tincan_release", action="store_true", default=False, dest="tincan_r",
+        parser.add_argument("--build_tincan_rel", action="store_true", default=False, dest="tincan_r",
                             help="Builds the tincan release executable for ubuntu. It assumes you have the webrtc "
                                  "libraries already cloned or built")
-        parser.add_argument("--build_tincan_raspberry_debug", action="store_true", default=False, dest="tincan_r_d",
+        parser.add_argument("--build_tincan_rpi_dbg", action="store_true", default=False, dest="tincan_r_d",
                             help="Builds the tincan debug executable for raspberry. It assumes you have the webrtc "
                                  "libraries already cloned or built")
-        parser.add_argument("--build_tincan_raspberry_release", action="store_true", default=False, dest="tincan_r_r",
+        parser.add_argument("--build_tincan_rpi_rel", action="store_true", default=False, dest="tincan_r_r",
                             help="Builds the tincan release executable for raspberry. It assumes you have the webrtc "
                                  "libraries already cloned or built")
         parser.add_argument("--all", action="store_true", default=False, dest="all",
