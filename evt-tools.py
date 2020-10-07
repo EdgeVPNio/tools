@@ -15,7 +15,7 @@ class EvtTools:
         parser.add_argument("--clean", action="store_true", default=False, dest="clean",
                             help="Cleans the code from all the locations to prepare for a fresh installation.")
         parser.add_argument("--deps", action="store_true", default=False, dest="deps",
-                            help="Installs the required build tools.")
+                            help="Installs system-wide the necessary build tools.")
         parser.add_argument("--src", action="store_true", default=False, dest="src",
                             help="Clones EVIO repo.")
         parser.add_argument("--debpak", action="store_true", default=False, dest="debpak",

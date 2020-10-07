@@ -7,6 +7,8 @@ testbed/log
 *.deb
 .vscode/
 
-
+venv/
+__init__.py
 __pycache__/
 *.py[cod]
+ev-tools.sh
