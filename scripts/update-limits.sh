@@ -28,4 +28,4 @@ select yn in "Yes" "No"; do
         No ) exit;;
     esac
 done
-reboot
+sysctl -p
