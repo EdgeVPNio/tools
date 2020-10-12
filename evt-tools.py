@@ -3,6 +3,7 @@ import sys
 sys.path.append('../')
 from scripts.Link import Link
 import subprocess
+import os
 
 
 class EvtTools:
@@ -57,58 +58,82 @@ class EvtTools:
         link.sync(None)
 
     def clean(self):
-        subprocess.run(["ev-tools.sh clean"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh clean"], shell=True)
 
     def build_tools(self):
-        subprocess.run(["ev-tools.sh deps"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh deps"], shell=True)
 
     def pull_src(self):
-        subprocess.run(["ev-tools.sh src"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh src"], shell=True)
 
     def tincan(self):
-        subprocess.run(["ev-tools.sh tincan"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh tincan"], shell=True)
 
     def debpak(self):
-        subprocess.run(["ev-tools.sh debpak"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh debpak"], shell=True)
 
     def testbed(self):
-        subprocess.run(["ev-tools.sh testbed"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh testbed"], shell=True)
 
     def venv(self):
-        subprocess.run(["ev-tools.sh venv"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh venv"], shell=True)
 
     def xmpp(self):
-        subprocess.run(["ev-tools.sh xmpp"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh xmpp"], shell=True)
 
     def build_docker(self):
-        subprocess.run(["ev-tools.sh dkrimg"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh dkrimg"], shell=True)
 
     def build_webrtc(self):
-        subprocess.run(["ev-tools.sh build_webrtc"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh build_webrtc"], shell=True)
 
     def build_webrtc_release_ubuntu(self):
-        subprocess.run(["ev-tools.sh build_webrtc_with_release_ubuntu"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh build_webrtc_with_release_ubuntu"], shell=True)
 
     def build_webrtc_debug_raspberry(self):
-        subprocess.run(["ev-tools.sh build_webrtc_with_debug_raspberry_pi"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh build_webrtc_with_debug_raspberry_pi"], shell=True)
 
     def build_webrtc_release_raspberry(self):
-        subprocess.run(["ev-tools.sh build_webrtc_with_release_raspberry_pi"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh build_webrtc_with_release_raspberry_pi"], shell=True)
 
     def build_tincan(self):
-        subprocess.run(["ev-tools.sh build_tincan"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh build_tincan"], shell=True)
 
     def build_tincan_release_ubuntu(self):
-        subprocess.run(["ev-tools.sh build_tincan_release_ubuntu"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh build_tincan_release_ubuntu"], shell=True)
 
     def build_tincan_debug_raspberry(self):
-        subprocess.run(["ev-tools.sh build_tincan_debug_raspberry"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh build_tincan_debug_raspberry"], shell=True)
 
     def build_tincan_release_raspberry(self):
-        subprocess.run(["ev-tools.sh build_tincan_release_raspberry"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh build_tincan_release_raspberry"], shell=True)
+
+    def check_for_link(self):
+        if os.path.isfile("ev-tools.sh"):
+            return True
+        else:
+            print("Please run evt --sync and then retry the command.")
 
     def all(self):
-        subprocess.run(["ev-tools.sh all"], shell=True)
+        if self.check_for_link():
+            subprocess.run(["ev-tools.sh all"], shell=True)
 
 def main():
     tools = EvtTools()

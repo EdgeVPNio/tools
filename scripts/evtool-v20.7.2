@@ -24,14 +24,6 @@ function pull_src
   cd $wd
 }
 
-function make_tincan
-{
-  wd=$(pwd)
-  cd ../evio/tincan/trunk/build
-  make clean; make
-  cd $wd
-}
-
 function make_debpak
 {
   wd=$(pwd)
@@ -243,9 +235,6 @@ case $1 in
     ;;
   src)
     pull_src
-    ;;
-  tincan)
-    build_tincan
     ;;
   debpak)
     make_debpak
