@@ -31,28 +31,40 @@ elif [ "$target_os" != "ubuntu" ] && [ "$target_os" != "raspberry-pi" ]; then
         helpFunction
 fi
 
+if [[ "$target_os" == "ubuntu" ]]; then
+        platform="debian-x64"
+elif [[ "$target_os" == "raspberry-pi" ]]; then
+        platform="debian-arm"
+fi
+
+mkdir -p out/$platform/external/include
 #getting the required include files and folders from webrtc-checkout
 # folders required: absl,api,base,call,common_video,logging,media,modules,p2p,pc,system_wrappers,rtc_base,build,common_types.h, jni.h, logging_buildflags.h
-mkdir -p  external/include/webrtc
-cp -r webrtc-checkout/src/third_party/abseil-cpp/absl external/include
-cp -r webrtc-checkout/src/api external/include/webrtc
-cp -r webrtc-checkout/src/base external/include/webrtc
-cp -r webrtc-checkout/src/call external/include/webrtc
-cp -r webrtc-checkout/src/common_video external/include/webrtc
-cp -r webrtc-checkout/src/logging/rtc_event_log external/include/webrtc
-cp -r webrtc-checkout/src/media external/include/webrtc
-cp -r webrtc-checkout/src/modules external/include/webrtc
-cp -r webrtc-checkout/src/p2p external/include/webrtc
-cp -r webrtc-checkout/src/pc external/include/webrtc
-cp -r webrtc-checkout/src/system_wrappers/include external/include/webrtc
-cp -r webrtc-checkout/src/rtc_base external/include/webrtc
-cp -r webrtc-checkout/src/third_party/jsoncpp/source/include/json external/include
-cp webrtc-checkout/src/third_party/jsoncpp/generated/version.h external/include/json
-cp webrtc-checkout/src/common_types.h external/include/webrtc
-cp webrtc-checkout/src/third_party/ffmpeg/libavcodec/jni.h external/include/webrtc
-mkdir -p  external/include/libc++
-mkdir -p  external/include/libc++abi
-cp -r webrtc-checkout/src/buildtools/third_party/libc++/trunk/include external/include/libc++
-cp -r webrtc-checkout/src/buildtools/third_party/libc++abi/trunk/include external/include/libc++abi
+# Script to be run at workspace containing webrtc-checkout
+mkdir -p  out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/third_party/abseil-cpp/absl out/$platform/external/include
+cp -r webrtc-checkout/src/api  out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/base out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/call out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/common_video out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/logging/rtc_event_log out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/media out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/modules out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/p2p out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/pc out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/system_wrappers out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/rtc_base out/$platform/external/include/webrtc
+cp -r webrtc-checkout/src/third_party/jsoncpp/source/include/json out/$platform/external/include
+cp webrtc-checkout/src/third_party/jsoncpp/generated/version.h out/$platform/external/include/json
+cp webrtc-checkout/src/common_types.h out/$platform/external/include/webrtc
+cp webrtc-checkout/src/third_party/ffmpeg/libavcodec/jni.h out/$platform/external/include/webrtc
+mkdir -p  out/$platform/external/include/libc++
+mkdir -p  out/$platform/external/include/libc++abi
+cp -r webrtc-checkout/src/buildtools/third_party/libc++/trunk/include out/$platform/external/include/libc++
+cp -r webrtc-checkout/src/buildtools/third_party/libc++abi/trunk/include out/$platform/external/include/libc++abi
+#command to remove all files other than *.h
+cd out/$platform/external/include
+find . -type f ! -name '*.h' -delete
+
 #mkdir -p /external/include/build && cp webrtc-checkout/src/build/build_config.h "$_"
 #cp webrtc-checkout/src/build/buildflag.h /external/include/build
