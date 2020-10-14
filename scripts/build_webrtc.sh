@@ -41,9 +41,6 @@ if [ "$build_type" == "debug" ]; then
 	$debug_flag = true;
 fi
 
-#clang installation
-sudo apt install clang
-sudo apt-get install libc++-dev
 
 mkdir -p ~/workspace/webrtc-checkout && cd ~/workspace/webrtc-checkout
 #install Toolchain according to OS
