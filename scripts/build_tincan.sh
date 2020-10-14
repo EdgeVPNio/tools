@@ -45,7 +45,7 @@ fi
 git clone https://github.com/EdgeVPNio/evio.git
 if [[ "$target_os" == "ubuntu" ]]; then
 	git clone -b debian-x64 --single-branch https://github.com/EdgeVPNio/external.git
-elif [[ "$target_os" == "ubuntu" ]]; then
+elif [[ "$target_os" == "raspberry-pi" ]]; then
         git clone -b debian-arm --single-branch https://github.com/EdgeVPNio/external.git
 fi
 #Todo: add git clone cmd for different OS
