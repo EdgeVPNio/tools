@@ -30,20 +30,20 @@ function make_debpak
   cd ../../..
   mkdir -p out
   cd $wd
-  cp ../debian-package ../../../out
-  cp ../evio/controller/Controller.py ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
-  mkdir -p ../../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/
-  cp ../evio/controller/template-config.json ../../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
-  cp -r ../evio/controller/modules/ ../evio/controller/framework/ ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
-  chmod 0775 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/framework/ && \
-  chmod 0664 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/framework/* && \
-  chmod 0775 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/modules/ && \
-  chmod 0664 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/modules/* && \
-  chmod 0664 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/Controller.py && \
-  chmod 0664 ../../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
-  cp ../evio/tincan/trunk/out/release/x86_64/tincan ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
-  chmod 0775 ../../../out/debian-package/edge-vpnio/opt/edge-vpnio/tincan && \
-  cd ../../../out/debian-package/ && \
+  cp ../debian-package ../../out
+  cp ../evio/controller/Controller.py ../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  mkdir -p ../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/
+  cp ../evio/controller/template-config.json ../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
+  cp -r ../evio/controller/modules/ ../evio/controller/framework/ ../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  chmod 0775 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/framework/ && \
+  chmod 0664 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/framework/* && \
+  chmod 0775 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/modules/ && \
+  chmod 0664 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/modules/* && \
+  chmod 0664 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/Controller.py && \
+  chmod 0664 ../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
+  cp ../evio/tincan/trunk/out/release/x86_64/tincan ../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  chmod 0775 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/tincan && \
+  cd ../../out/debian-package/ && \
   ./deb-gen && \
   rm -rf edge-vpnio/opt/edge-vpnio/framework \
     edge-vpnio/opt/edge-vpnio/modules \
@@ -89,7 +89,7 @@ function make_venv
 
 function make_dkrimg
 {
-  mv debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
+  mv ../../out/debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
     docker build -f ./../docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 ./docker-image && \
     docker build -f ./../docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7.3 ./docker-image
     
