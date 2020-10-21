@@ -37,9 +37,6 @@ if [ "$build_type" == "debug" ]; then
         $debug_flag = true;
 fi
 
-
-#mkdir -p ~/workspace
-#cd ~/workspace
 #assuming this script runs from a place a directory where all three -evio, tools,external exist
 
 git clone https://github.com/EdgeVPNio/evio.git
@@ -58,7 +55,7 @@ if [[ "$target_os" == "ubuntu" ]]; then
 	gn gen out/debian-x64/$build_type "--args='is_debug=$debug_flag target_sysroot_dir=\"\'pwd\'/../../external\" use_debug_fission=false clang_base_path=\"\'pwd\'/../../tools/llvm/bin\""
         ninja -C out/debian-x64/$build_type
 else
-        gn gen out/debian-arm/$build_type "--args='target_cpu=\"arm\" is_debug=$debug_flag use_lld=true target_sysroot_dir=\"\'pwd\'/../../external\" is_debug=$debug_flag clang_base_path=\"\'pwd\'/../../tools/llvm/bin\""
+        gn gen out/debian-arm/$build_type "--args='target_cpu=\"arm\" use_lld=true target_sysroot_dir=\"\'pwd\'/../../external\" is_debug=$debug_flag clang_base_path=\"\'pwd\'/../../tools/llvm/bin\""
 	ninja -C out/debian-arm/$build_type
 fi
 

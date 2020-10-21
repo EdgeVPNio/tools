@@ -42,7 +42,6 @@ fi
 # folders required: absl,api,base,call,common_video,logging,media,modules,p2p,pc,system_wrappers,rtc_base,build,common_types.h, jni.h, logging_buildflags.h
 
 # Script to be run at workspace containing webrtc-checkout
-# WORKSPACE_BASE='pwd' 
 
 #parameter: $1: src directory, $2: dest directory
 #Copies the header files recursively from source webrtc to external/include
@@ -53,7 +52,6 @@ copyHeaders()
 	rsync -am --include='*.h' -f 'hide,! */' $1 $2
 }
 
-#mkdir -p  out/$platform/external/include/webrtc
 copyHeaders webrtc-checkout/src/third_party/abseil-cpp/absl out/$platform/external/include
 copyHeaders webrtc-checkout/src/third_party/abseil-cpp/absl out/$platform/external/include
 copyHeaders webrtc-checkout/src/api  out/$platform/external/include/webrtc
