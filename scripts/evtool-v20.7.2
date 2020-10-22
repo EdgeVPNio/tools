@@ -4,6 +4,10 @@ EVIO=https://github.com/EdgeVPNio/evio.git
 EXLIBS=https://github.com/ipop-project/3rd-Party-Libs.git
 PY=python3.8
 WorkspaceRoot=~/workspace
+Build_WRTC=./EdgeVPNIO/tools/scripts/build_webrtc.sh
+Get_Archives=./EdgeVPNIO/tools/scripts/get_archives.sh
+Get_Include=./EdgeVPNIO/tools/scripts/get_include.sh
+Build_Tincan=./EdgeVPNIO/tools/build_tincan.sh
 function install_build_tools
 {
   sudo bash -c "
@@ -142,89 +146,93 @@ function do_clean
   cd $wd
 }
 
-function build_webrtc
+function build_webrtc()
 {
   wd=$(pwd)
   cd $WorkspaceRoot
-  chmod +x ./tools/scripts/build_webrtc.sh ./tools/scripts/get_archives.sh ./tools/scripts/get_include.sh
-  tools/scripts/build_webrtc.sh -b debug -t ubuntu
-  cd $WorkspaceRoot
-  tools/scripts/get_archives.sh -b debug -t ubuntu
-  cd $WorkspaceRoot
-  tools/scripts/get_include.sh -b debug -t ubuntu
+  chmod +x $Build_WRTC $Get_Archives $Get_Include
+  if ! $Build_WRTC -b "$1" -t "$2"
+  then
+    cd $WorkspaceRoot
+    if ! $Get_Archives -b "$1" -t "$2"
+    then
+      cd $WorkspaceRoot
+      $Get_Include -b "$1" -t "$2"
+    fi
+  fi
   cd $wd
 }
 
-function build_webrtc_with_release_ubuntu
-{
+#function build_webrtc_with_release_ubuntu
+#{
+#  wd=$(pwd)
+#  cd $WorkspaceRoot
+#  chmod +x $Build_WRTC $Get_Archives $Get_Include
+#  $Build_WRTC -b release -t ubuntu
+#  cd $WorkspaceRoot
+#  $Get_Archives -b release -t ubuntu
+#  cd $WorkspaceRoot
+#  $Get_Include -b release -t ubuntu
+#  cd $wd
+#}
+#
+#function build_webrtc_with_debug_raspberry_pi
+#{
+#  wd=$(pwd)
+#  cd $WorkspaceRoot
+#  chmod +x $Build_WRTC $Get_Archives $Get_Include
+#  ./EdgeVPNIO/tools/scripts/build_webrtc.sh -b debug -t raspberry-pi
+#  cd $WorkspaceRoot
+#  ./EdgeVPNIO/tools/scripts/get_archives.sh -b debug -t raspberry-pi
+#  cd $WorkspaceRoot
+#  ./EdgeVPNIO/tools/scripts/get_include.sh -b debug -t raspberry-pi
+#  cd $wd
+#}
+#
+#function build_webrtc_with_release_raspberry_pi
+#{
+#  wd=$(pwd)
+#  cd $WorkspaceRoot
+#  chmod +x $Build_WRTC $Get_Archives $Get_Include
+#  ./EdgeVPNIO/tools/scripts/build_webrtc.sh -b release -t raspberry-pi
+#  cd $WorkspaceRoot
+#  ./EdgeVPNIO/tools/scripts/get_archives.sh -b release -t raspberry-pi
+#  cd $WorkspaceRoot
+#  ./EdgeVPNIO/tools/scripts/get_include.sh -b release -t raspberry-pi
+#  cd $wd
+#}
+
+function build_tincan() {
   wd=$(pwd)
   cd $WorkspaceRoot
-  chmod +x ./tools/scripts/build_webrtc.sh ./tools/scripts/get_archives.sh ./tools/scripts/get_include.sh
-  ./tools/scripts/build_webrtc.sh -b release -t ubuntu
-  cd $WorkspaceRoot
-  ./tools/scripts/get_archives.sh -b release -t ubuntu
-  cd $WorkspaceRoot
-  ./tools/scripts/get_include.sh -b release -t ubuntu
+  chmod +x $Build_Tincan
+  $Build_Tincan  -b "$1" -t "$2"
   cd $wd
 }
 
-function build_webrtc_with_debug_raspberry_pi
-{
-  wd=$(pwd)
-  cd $WorkspaceRoot
-  chmod +x ./tools/scripts/build_webrtc.sh ./tools/scripts/get_archives.sh ./tools/scripts/get_include.sh
-  ./tools/scripts/build_webrtc.sh -b debug -t raspberry-pi
-  cd $WorkspaceRoot
-  ./tools/scripts/get_archives.sh -b debug -t raspberry-pi
-  cd $WorkspaceRoot
-  ./tools/scripts/get_include.sh -b debug -t raspberry-pi
-  cd $wd
-}
-
-function build_webrtc_with_release_raspberry_pi
-{
-  wd=$(pwd)
-  cd $WorkspaceRoot
-  chmod +x ./tools/scripts/build_webrtc.sh ./tools/scripts/get_archives.sh ./tools/scripts/get_include.sh
-  ./tools/scripts/build_webrtc.sh -b release -t raspberry-pi
-  cd $WorkspaceRoot
-  ./tools/scripts/get_archives.sh -b release -t raspberry-pi
-  cd $WorkspaceRoot
-  ./tools/scripts/get_include.sh -b release -t raspberry-pi
-  cd $wd
-}
-
-function build_tincan {
-  wd=$(pwd)
-  cd $WorkspaceRoot
-  chmod +x ./tools/build_tincan.sh
-  ./tools/scripts/build_tincan.sh  -b debug -t ubuntu
-  cd $wd
-}
-
-function build_tincan_release_ubuntu {
-  wd=$(pwd)
-  cd $WorkspaceRoot
-  chmod +x ./tools/build_tincan.sh
-  ./tools/scripts/build_tincan.sh  -b release -t ubuntu
-  cd $wd
-}
-
-function build_tincan_debug_raspberry {
-  wd=$(pwd)
-  cd $WorkspaceRoot
-  chmod +x ./tools/build_tincan.sh
-  ./tools/scripts/build_tincan.sh  -b debug -t raspberry-pi
-  cd $wd
-}
-
-function build_tincan_release_raspberry {
-  wd=$(pwd)
-  cd $WorkspaceRoot
-  chmod +x ./tools/build_tincan.sh
-  ./tools/scripts/build_tincan.sh  -b debug -t raspberry-pi
-  cd $wd
-}
+#function build_tincan_release_ubuntu {
+#  wd=$(pwd)
+#  cd $WorkspaceRoot
+#  chmod +x ./EdgeVPNIO/tools/build_tincan.sh
+#  ./EdgeVPNIO/tools/scripts/build_tincan.sh  -b release -t ubuntu
+#  cd $wd
+#}
+#
+#function build_tincan_debug_raspberry {
+#  wd=$(pwd)
+#  cd $WorkspaceRoot
+#  chmod +x ./EdgeVPNIO/tools/build_tincan.sh
+#  ./EdgeVPNIO/tools/scripts/build_tincan.sh  -b debug -t raspberry-pi
+#  cd $wd
+#}
+#
+#function build_tincan_release_raspberry {
+#  wd=$(pwd)
+#  cd $WorkspaceRoot
+#  chmod +x ./EdgeVPNIO/tools/build_tincan.sh
+#  ./EdgeVPNIO/tools/scripts/build_tincan.sh  -b debug -t raspberry-pi
+#  cd $wd
+#}
 
 function do_full_setup
 {
@@ -264,28 +272,28 @@ case $1 in
     do_clean
     ;;
   build_webrtc)
-    build_webrtc
+    build_webrtc debug ubuntu
     ;;
   build_webrtc_with_release_ubuntu)
-    build_webrtc_with_release_ubuntu
+    build_webrtc release ubuntu
     ;;
   build_webrtc_with_debug_raspberry_pi)
-    build_webrtc_with_debug_raspberry_pi
+    build_webrtc debug raspberry-pi
     ;;
   build_webrtc_with_release_raspberry_pi)
-    build_webrtc_with_release_raspberry_pi
+    build_webrtc release raspberry-pi
     ;;
   build_tincan)
-    build_tincan
+    build_tincan debug ubuntu
     ;;
   build_tincan_release_ubuntu)
-    build_tincan_release_ubuntu
+    build_tincan release ubuntu
     ;;
   build_tincan_debug_raspberry)
-    build_tincan_debug_raspberry
+    build_tincan debug raspberry-pi
     ;;
   build_tincan_release_raspberry)
-    build_tincan_release_raspberry
+    build_tincan release raspberry-pi
     ;;
   all)
     do_full_setup

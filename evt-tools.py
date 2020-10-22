@@ -97,7 +97,7 @@ class EvtTools:
 
     def build_webrtc(self):
         if self.check_for_link():
-            subprocess.run([(SH + " build_webrtc" % SH)], shell=True)
+            subprocess.run([(SH + " build_webrtc")], shell=True)
 
     def build_webrtc_release_ubuntu(self):
         if self.check_for_link():
