@@ -63,6 +63,7 @@ class Link:
         if path.exists("evio"):
             self.dir_path = os.getcwd()[0:]
         else:
+            self.dir_path = os.getcwd()[0:]
             git.Git(self.dir_path).clone("https://github.com/EdgeVPNio/evio.git")
 
         self.evio_repo = git.Repo(str(self.dir_path) + "/evio")
@@ -79,3 +80,4 @@ class Link:
 if __name__ == "__main__":
     link = Link()
     link.main()
+

@@ -151,6 +151,7 @@ function build_webrtc()
   wd=$(pwd)
   cd $WorkspaceRoot
   chmod +x $Build_WRTC $Get_Archives $Get_Include
+  echo "Building webrtc with" "$1" "$2"
   if ! $Build_WRTC -b "$1" -t "$2"
   then
     cd $WorkspaceRoot

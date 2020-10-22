@@ -32,6 +32,7 @@ copyHeaders webrtc-checkout/src/third_party/jsoncpp/source/include/json out/incl
 copyHeaders webrtc-checkout/src/third_party/jsoncpp/generated/version.h out/include/json
 copyHeaders webrtc-checkout/src/common_types.h out/include/webrtc
 copyHeaders webrtc-checkout/src/third_party/ffmpeg/libavcodec/jni.h out/include/webrtc
+
 #files other than *.h
 mkdir -p  out/include/libc++
 mkdir -p  out/include/libc++abi
