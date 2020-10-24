@@ -44,34 +44,48 @@ fi
 Workspace_root=`pwd`
 mkdir -p $Workspace_root/webrtc-checkout && cd $Workspace_root/webrtc-checkout
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+
 #install Toolchain according to OS
 if [ "$target_os" == "ubuntu" ]; then
 	sudo apt-get update && sudo apt-get -y install git python
-	export PATH=$Workspace_root/depot_tools:"$PATH"
+	export PATH=$Workspace_root/webrtc-checkout/depot_tools:"$PATH"
 else
-	echo "export PATH=$Workspace_root/depot_tools:\$PATH" | sudo tee /etc/profile.d/depot_tools.sh
+	echo "export PATH=$Workspace_root/webrtc-checkout/depot_tools:\$PATH" | sudo tee /etc/profile.d/depot_tools.sh
+fi
+
+#To update the setup with depot_tools in path
+errormsg=$( gclient sync 2>&1)
+if [[ "$errormsg" == *"error"* ]]; then
+        echo $errormsg
+        exit 1;
 fi
 
 #build webrtc
 errormsg=$( fetch --nohooks webrtc 2>&1)
 if [[ "$errormsg" == *"error"* ]]; then
-	echo $errormsg
-	exit 1;
-fi
-cd src
-git checkout branch-heads/4147
-errormsg=$( gclient sync 2>&1)
-if [[ "$errormsg" == *"error"* ]]; then
-	echo $errormsg
-	exit 1;
-fi
-if [ "$target_os" == "ubuntu" ]; then
-	sudo apt-get install gtk2.0
-else
-	./build/install-build-deps.sh --no-chromeos-fonts
-	./build/linux/sysroot_scripts/install-sysroot.py --arch=arm
+        echo $errormsg
+        exit 1;
 fi
 
+if [ "$target_os" == "ubuntu" ]; then
+        sudo apt-get install gtk2.0
+        ./src/build/install-build-deps.sh --no-chromeos-fonts
+else
+        ./src/build/install-build-deps.sh --no-chromeos-fonts
+        ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=arm
+fi
+
+cd src
+git checkout branch-heads/4147
+
+#to update the path to depot_tools/gn and ninja
+errormsg=$( gclient sync 2>&1)
+if [[ "$errormsg" == *"error"* ]]; then
+        echo $errormsg
+        exit 1;
+fi
+
+#gn_path=$Workspace_root/EdgeVPNIO/tools/bin/gn
 if [ "$target_os" == "ubuntu" ]; then
 	gn gen out/$build_type "--args=enable_iterator_debugging=false is_component_build=false is_debug=$debug_flag"
 else
@@ -79,9 +93,4 @@ else
 fi
 
 #ninja cmd to compile the required webrtc libraries
-webrtc_libs = boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
-errormsg=$( ninja -C out/$build_type/ $webrtc_libs 2>&1)
-if [[ "$errormsg" == *"error"* ]] || [[ "$errormsg" == *"fatal"* ]]; then
-	echo $errormsg
-	exit 1;
-fi
+ninja -C out/$build_type boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
