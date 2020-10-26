@@ -41,7 +41,7 @@ fi
 mkdir -p out/$platform/external/libs
 #getting the required .o files and .a files to 3rd party libs from webrtc-checkout
 Workspace_root=`pwd`
-LLVM=$Workspace_root/EdgeVPNIO/tools/llvm/bin/llvm-ar
+LLVM=$Workspace_root/EdgeVPNio/tools/llvm/bin/llvm-ar
 $LLVM -rcs out/$platform/external/libs/libwebrtc_lite.a webrtc-checkout/src/out/$build_type/obj/rtc_base/rtc_base/*.o
 $LLVM -qcs out/$platform/external/libs/libwebrtc_lite.a webrtc-checkout/src/out/$build_type/obj/rtc_base/rtc_base_approved/*.o
 $LLVM -qcs out/$platform/external/libs/libwebrtc_lite.a webrtc-checkout/src/out/$build_type/obj/p2p/rtc_p2p/*.o

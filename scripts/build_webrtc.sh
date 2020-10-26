@@ -85,7 +85,6 @@ if [[ "$errormsg" == *"error"* ]]; then
         exit 1;
 fi
 
-#gn_path=$Workspace_root/EdgeVPNIO/tools/bin/gn
 if [ "$target_os" == "ubuntu" ]; then
 	gn gen out/"$build_type" "--args=enable_iterator_debugging=false is_component_build=false is_debug=$debug_flag"
 else

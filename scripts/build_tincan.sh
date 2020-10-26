@@ -39,23 +39,23 @@ fi
 
 #assuming this script runs from a place a directory where all three -evio, tools,external exist
 
-git clone https://github.com/EdgeVPNio/evio.git
+Workspace_root=`pwd`
+cd "$Workspace_root"/EdgeVPNio
+
 if [[ "$target_os" == "ubuntu" ]]; then
 	git clone -b debian-x64 --single-branch https://github.com/EdgeVPNio/external.git
 elif [[ "$target_os" == "raspberry-pi" ]]; then
         git clone -b debian-arm --single-branch https://github.com/EdgeVPNio/external.git
 fi
-#Todo: add git clone cmd for different OS
-git clone https://github.com/EdgeVPNio/tools.git
 
 cd evio/tincan
-export PATH=`pwd`/../../tools/bin:$PATH
+export PATH="$Workspace_root"/EdgeVPNio/tools/bin:"$PATH"
 
 if [[ "$target_os" == "ubuntu" ]]; then
-	gn gen out/debian-x64/$build_type "--args='is_debug=$debug_flag target_sysroot_dir=\"\'pwd\'/../../external\" use_debug_fission=false clang_base_path=\"\'pwd\'/../../tools/llvm/bin\""
-        ninja -C out/debian-x64/$build_type
+	gn gen out/debian-x64/"$build_type" "--args=is_debug=$debug_flag target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" use_debug_fission=false clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin"\"
+        ninja -C out/debian-x64/"$build_type"
 else
-        gn gen out/debian-arm/$build_type "--args='target_cpu=\"arm\" use_lld=true target_sysroot_dir=\"\'pwd\'/../../external\" is_debug=$debug_flag clang_base_path=\"\'pwd\'/../../tools/llvm/bin\""
-	ninja -C out/debian-arm/$build_type
+        gn gen out/debian-arm/"$build_type" "--args='target_cpu=\"arm\" use_lld=true target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" is_debug=$debug_flag clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin\""
+	ninja -C out/debian-arm/"$build_type"
 fi
 
