@@ -149,7 +149,7 @@ def main():
         return
 
     if tools.args.tincan:
-        tools.tincan()
+        tools.build_tincan()
         return
 
     if tools.args.debpak:
@@ -186,10 +186,6 @@ def main():
 
     if tools.args.webrtc_r_r:
         tools.build_webrtc_release_raspberry()
-        return
-
-    if tools.args.tincan:
-        tools.build_tincan()
         return
 
     if tools.args.tincan_r:
