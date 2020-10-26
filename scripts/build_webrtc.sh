@@ -42,7 +42,7 @@ if [ "$build_type" == "debug" ]; then
 fi
 
 Workspace_root=`pwd`
-mkdir -p $Workspace_root/webrtc-checkout && cd $Workspace_root/webrtc-checkout
+mkdir -p "$Workspace_root"/webrtc-checkout && cd "$Workspace_root"/webrtc-checkout
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 
 #install Toolchain according to OS
@@ -87,10 +87,10 @@ fi
 
 #gn_path=$Workspace_root/EdgeVPNIO/tools/bin/gn
 if [ "$target_os" == "ubuntu" ]; then
-	gn gen out/$build_type "--args=enable_iterator_debugging=false is_component_build=false is_debug=$debug_flag"
+	gn gen out/"$build_type" "--args=enable_iterator_debugging=false is_component_build=false is_debug=$debug_flag"
 else
-	gn gen out/$build_type "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false is_component_build=false"
+	gn gen out/"$build_type" "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false is_component_build=false"
 fi
 
 #ninja cmd to compile the required webrtc libraries
-ninja -C out/$build_type boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
+ninja -C out/"$build_type" boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
