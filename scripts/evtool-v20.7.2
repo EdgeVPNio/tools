@@ -4,10 +4,12 @@ EVIO=https://github.com/EdgeVPNio/evio.git
 EXLIBS=https://github.com/ipop-project/3rd-Party-Libs.git
 PY=python3.8
 WorkspaceRoot=~/workspace
-Build_WRTC=./EdgeVPNIO/tools/scripts/build_webrtc.sh
-Get_Archives=./EdgeVPNIO/tools/scripts/get_archives.sh
-Get_Include=./EdgeVPNIO/tools/scripts/get_include.sh
-Build_Tincan=./EdgeVPNIO/tools/scripts/build_tincan.sh
+EdgeVPNIO=EdgeVPNIO
+Build_WRTC=./$EdgeVPNIO/tools/scripts/build_webrtc.sh
+Get_Archives=./$EdgeVPNIO/tools/scripts/get_archives.sh
+Get_Include=./$EdgeVPNIO/tools/scripts/get_include.sh
+Build_Tincan=./$EdgeVPNIO/tools/scripts/build_tincan.sh
+
 function install_build_tools
 {
   sudo bash -c "
@@ -31,10 +33,10 @@ function pull_src
 function make_debpak
 {
   wd=$(pwd)
-  cd ../../..
+  cd ~/workspace
   mkdir -p out
-  cd $wd
-  cp ../debian-package ../../out
+  cd ~/workspace/$EdgeVPNIO/tools
+  cp ./debian-package ../../out
   cp ../evio/controller/Controller.py ../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
   mkdir -p ../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/
   cp ../evio/controller/template-config.json ../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
@@ -93,9 +95,11 @@ function make_venv
 
 function make_dkrimg
 {
+  mkdir -p ~/workspace/out/docker-image
+  cd ~/workspace/$EdgeVPNIO/tools
   mv ../../out/debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
-    docker build -f ./../docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 ./docker-image && \
-    docker build -f ./../docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7.3 ./docker-image
+    docker build -f ./docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 ../../out/docker-image && \
+    docker build -f ./docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7.3 ../../out/docker-image
     
 }
 
@@ -124,24 +128,24 @@ function do_clean
   # tincan
   wd=$(pwd)
 
-  cd ../../evio/tincan/trunk/build
+  cd ~/workspace/$EdgeVPNIO/evio/tincan/trunk/build
   make clean;
-  cd $wd
+  cd ~/workspace/out/
   #debian pak
-  cd ../debian-package/ && \
+  cd ./debian-package/ && \
   rm -ri ./edge-vpnio_20.7_amd64.deb \
     edge-vpnio/opt/edge-vpnio/framework \
     edge-vpnio/opt/edge-vpnio/modules \
     edge-vpnio/opt/edge-vpnio/tincan \
     edge-vpnio/opt/edge-vpnio/template-config.json \
-    edge-vpnio/opt/edge-vpnio/Controller.py && \
-  cd $wd  
+    edge-vpnio/opt/edge-vpnio/Controller.py
   # docker-image
+  cd ..
   rm -f docker-image/edge-vpnio_20.7_amd64.deb
   docker rmi edgevpnio/evio-base:1.0 edgevpnio/evio-node:20.7
   docker rmi $(docker images -q --filter "dangling=true")
   # testbed
-  cd ../testbed
+  cd ~/workspace/$EdgeVPNIO/tools/testbed
   rm -rf config log cert venv
   cd $wd
 }
