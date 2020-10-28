@@ -35,7 +35,7 @@ copyHeaders webrtc-checkout/src/third_party/ffmpeg/libavcodec/jni.h out/include/
 #files other than *.h
 mkdir -p  out/include/libc++
 mkdir -p  out/include/libc++abi
-cp -r webrtc-checkout/src/buildtools/third_party/libc++/trunk/include out/include/libc++
-cp -r webrtc-checkout/src/buildtools/third_party/libc++abi/trunk/include out/include/libc++abi
+cp -r webrtc-checkout/src/buildtools/third_party/libc++/trunk/include/* out/include/libc++
+cp -r webrtc-checkout/src/buildtools/third_party/libc++abi/trunk/include/* out/include/libc++abi
 #mkdir -p /external/include/build && cp webrtc-checkout/src/build/build_config.h "$_"
 #cp webrtc-checkout/src/build/buildflag.h /external/include/build
