@@ -47,16 +47,13 @@ fi
 
 Workspace_root=`pwd`
 cd "$Workspace_root"/EdgeVPNio
+#mkdir -p ~/workspace
+#cd ~/workspace
+#assuming this script runs from a place a directory where all three -evio, tools,external exist
 
-if [[ "$target_os" == "ubuntu" ]]; then
-	git clone -b "$platform" --single-branch https://github.com/EdgeVPNio/external.git
-elif [[ "$target_os" == "raspberry-pi" ]]; then
-        git clone -b "$platform" --single-branch https://github.com/EdgeVPNio/external.git
-fi
+git clone -b "$platform" --single-branch https://github.com/EdgeVPNio/external.git
 
-cd evio/tincan
 export PATH="$Workspace_root"/EdgeVPNio/tools/bin:"$PATH"
-
 #ubuntu debug build
 if [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = true ]; then
 	gn gen out/"$platform"/"$build_type" "--args=is_debug=$debug_flag target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" use_debug_fission=false clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin"\"
