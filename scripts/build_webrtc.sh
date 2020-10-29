@@ -41,17 +41,17 @@ if [ "$build_type" == "debug" ]; then
 	$debug_flag = true;
 fi
 
+if [[ "$target_os" == "ubuntu" ]]; then
+        platform="debian-x64"
+elif [[ "$target_os" == "raspberry-pi" ]]; then
+        platform="debian-arm"
+fi
+
 Workspace_root=`pwd`
 mkdir -p "$Workspace_root"/webrtc-checkout && cd "$Workspace_root"/webrtc-checkout
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 
-#install Toolchain according to OS
-if [ "$target_os" == "ubuntu" ]; then
-	sudo apt-get update && sudo apt-get -y install git python
-	export PATH=$Workspace_root/webrtc-checkout/depot_tools:"$PATH"
-else
-	echo "export PATH=$Workspace_root/webrtc-checkout/depot_tools:\$PATH" | sudo tee /etc/profile.d/depot_tools.sh
-fi
+export PATH=$Workspace_root/webrtc-checkout/depot_tools:"$PATH"
 
 #To update the setup with depot_tools in path
 errormsg=$( gclient sync 2>&1)
@@ -85,11 +85,19 @@ if [[ "$errormsg" == *"error"* ]]; then
         exit 1;
 fi
 
-if [ "$target_os" == "ubuntu" ]; then
-	gn gen out/"$build_type" "--args=enable_iterator_debugging=false is_component_build=false is_debug=$debug_flag"
-else
-	gn gen out/"$build_type" "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false is_component_build=false"
+#ubuntu debug build
+if [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = true ]; then
+	gn gen out/"$platform"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag use_debug_fission=false"
+#ubuntu release build
+elif [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = false ]; then
+	gn gen out/"$platform"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag"
+#raspberry-pi debug build
+elif [ "$target_os" == "raspberry-pi" ] && [ "$debug_flag" = true ]; then
+	gn gen out/"$platform"/"$build_type" "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false"
+else 
+#raspberry-pi release build
+	gn gen out/"$platform"/"$build_type" "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false"
 fi
 
 #ninja cmd to compile the required webrtc libraries
-ninja -C out/"$build_type" boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
+ninja -C out/"$platform"/"$build_type" boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
