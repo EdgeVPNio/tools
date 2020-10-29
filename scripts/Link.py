@@ -53,25 +53,30 @@ class Link:
         """
         Get the active branch name of the Evio and Tools repo.
         """
-        present_dir = os.getcwd()[0:3]
-        for root, subdirs, files in os.walk(present_dir):
-            for d in subdirs:
-                if d == "evio":
-                    self.dir_path = os.path.join(root, d)
+        # present_dir = os.getcwd()[0:3]
+        # for root, subdirs, files in os.walk(present_dir):
+        #     for d in subdirs:
+        #         if d == "evio":
+        #             self.dir_path = os.path.join(root, d)
+        pwd = os.getcwd()[0:]
+        os.chdir(os.getenv("HOME") + "/workspace/EdgeVPNio")
+        if path.exists("evio"):
+            self.dir_path = os.getcwd()[0:]
+        else:
+            self.dir_path = os.getcwd()[0:]
+            git.Git(self.dir_path).clone("https://github.com/EdgeVPNio/evio.git")
 
-        self.evio_repo = git.Repo(self.dir_path)
+        self.evio_repo = git.Repo(str(self.dir_path) + "/evio")
         #print("Evio Branch name:" + str(self.evio_repo.active_branch))
-        for root, subdirs, files in os.walk(present_dir):
-            for d in subdirs:
-                if d == "tools":
-                    self.dir_path_tools = os.path.join(root, d)
+        self.dir_path_tools = "~/workspace/EdgeVPNio/tools"
         self.tools_repo = git.Repo(self.dir_path_tools)
         #print("Tools Branch name:" + str(self.tools_repo.active_branch))
+        os.chdir(str(pwd))
 
     def main(self):
         self.sync("20.7.2")
 
-
 if __name__ == "__main__":
     link = Link()
     link.main()
+
