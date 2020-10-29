@@ -37,28 +37,36 @@ if [ "$build_type" == "debug" ]; then
         $debug_flag = true;
 fi
 
+if [[ "$target_os" == "ubuntu" ]]; then
+        platform="debian-x64"
+elif [[ "$target_os" == "raspberry-pi" ]]; then
+        platform="debian-arm"
+fi
 
+#assuming this script runs from a place a directory where all three -evio, tools,external exist
+
+Workspace_root=`pwd`
+cd "$Workspace_root"/EdgeVPNio
 #mkdir -p ~/workspace
 #cd ~/workspace
 #assuming this script runs from a place a directory where all three -evio, tools,external exist
 
-git clone https://github.com/EdgeVPNio/evio.git
-if [[ "$target_os" == "ubuntu" ]]; then
-	git clone -b debian-x64 --single-branch https://github.com/EdgeVPNio/external.git
-elif [[ "$target_os" == "raspberry-pi" ]]; then
-        git clone -b debian-arm --single-branch https://github.com/EdgeVPNio/external.git
-fi
-#Todo: add git clone cmd for different OS
-git clone https://github.com/EdgeVPNio/tools.git
+git clone -b "$platform" --single-branch https://github.com/EdgeVPNio/external.git
 
-cd evio/tincan
-export PATH=`pwd`/../../tools/bin:$PATH
-
-if [[ "$target_os" == "ubuntu" ]]; then
-	gn gen out/debian-x64/$build_type "--args='is_debug=$debug_flag target_sysroot_dir=\"\'pwd\'/../../external\" use_debug_fission=false clang_base_path=\"\'pwd\'/../../tools/llvm/bin\""
-        ninja -C out/debian-x64/$build_type
+export PATH="$Workspace_root"/EdgeVPNio/tools/bin:"$PATH"
+#ubuntu debug build
+if [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = true ]; then
+	gn gen out/"$platform"/"$build_type" "--args=is_debug=$debug_flag target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" use_debug_fission=false clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin"\"
+#ubuntu release build
+elif [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = false ]; then
+	gn gen out/"$platform"/"$build_type" "--args=is_debug=$debug_flag target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin"\"
+#raspberry-pi debug build
+elif [ "$target_os" == "raspberry-pi" ] && [ "$debug_flag" = true ]; then
+        gn gen out/"$platform"/"$build_type" "--args='target_cpu=\"arm\" use_lld=true use_debug_fission=false target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" is_debug=$debug_flag clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin\""
 else
-        gn gen out/debian-arm/$build_type "--args='target_cpu=\"arm\" is_debug=$debug_flag use_lld=true target_sysroot_dir=\"\'pwd\'/../../external\" is_debug=$debug_flag clang_base_path=\"\'pwd\'/../../tools/llvm/bin\""
-	ninja -C out/debian-arm/$build_type
+#raspberry-pi release build
+	gn gen out/"$platform"/"$build_type" "--args='target_cpu=\"arm\" use_lld=true target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" is_debug=$debug_flag clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin\""
 fi
+
+ninja -C out/"$platform"/"$build_type"
 

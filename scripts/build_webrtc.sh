@@ -41,58 +41,63 @@ if [ "$build_type" == "debug" ]; then
 	$debug_flag = true;
 fi
 
+if [[ "$target_os" == "ubuntu" ]]; then
+        platform="debian-x64"
+elif [[ "$target_os" == "raspberry-pi" ]]; then
+        platform="debian-arm"
+fi
 
-mkdir -p ~/workspace/webrtc-checkout && cd ~/workspace/webrtc-checkout
-#install Toolchain according to OS
-if [ "$target_os" == "ubuntu" ]; then
-	sudo apt-get update && sudo apt-get -y install git python
-	git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-	export PATH=`pwd`/depot_tools:"$PATH"
-else
-	sudo apt update && sudo apt install -y debootstrap qemu-user-static git python3-dev
-	sudo git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /opt/depot_tools
-	echo "export PATH=/opt/depot_tools:\$PATH" | sudo tee /etc/profile.d/depot_tools.sh
-	sudo git clone https://github.com/raspberrypi/tools.git /opt/rpi_tools
-	echo "export PATH=/opt/rpi_tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin:\$PATH" | sudo tee /etc/profile.d/rpi_tools.sh
-	sudo chown -R `whoami`:`whoami` /opt/depot_tools /opt/rpi_tools
-	source /etc/profile
-	sudo debootstrap --arch armhf --foreign --include=g++,libasound2-dev,libpulse-dev,libudev-dev,libexpat1-dev,libnss3-dev,libgtk2.0-dev jessie rootfs
-	sudo cp /usr/bin/qemu-arm-static rootfs/usr/bin/
-	sudo chroot rootfs /debootstrap/debootstrap --second-stage
-	find rootfs/usr/lib/arm-linux-gnueabihf -lname '/*' -printf '%p %l\n' | while read link target; do sudo ln -snfv "../../..${target}" "${link}"; done
-	find rootfs/usr/lib/arm-linux-gnueabihf/pkgconfig -printf "%f\n" | while read target; do sudo ln -snfv "../../lib/arm-linux-gnueabihf/pkgconfig/${target}" rootfs/usr/share/pkgconfig/${target}; done
+Workspace_root=`pwd`
+mkdir -p "$Workspace_root"/webrtc-checkout && cd "$Workspace_root"/webrtc-checkout
+git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+
+export PATH=$Workspace_root/webrtc-checkout/depot_tools:"$PATH"
+
+#To update the setup with depot_tools in path
+errormsg=$( gclient sync 2>&1)
+if [[ "$errormsg" == *"error"* ]]; then
+        echo $errormsg
+        exit 1;
 fi
 
 #build webrtc
 errormsg=$( fetch --nohooks webrtc 2>&1)
 if [[ "$errormsg" == *"error"* ]]; then
-	echo $errormsg
-	exit 1;
-fi
-cd src
-git checkout branch-heads/4147
-errormsg=$( gclient sync 2>&1)
-if [[ "$errormsg" == *"error"* ]]; then
-	echo $errormsg
-	exit 1;
-fi
-if [ "$target_os" == "ubuntu" ]; then
-	sudo apt-get install gtk2.0
-else
-	./build/install-build-deps.sh
-	./build/linux/sysroot_scripts/install-sysroot.py --arch=arm
+        echo $errormsg
+        exit 1;
 fi
 
 if [ "$target_os" == "ubuntu" ]; then
-	gn gen out/$build_type "--args=enable_iterator_debugging=false is_component_build=false is_debug=$debug_flag"
+        sudo apt-get install gtk2.0
+        ./src/build/install-build-deps.sh --no-chromeos-fonts
 else
-	gn gen out/$build_type "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false is_component_build=false is_debug=true rtc_build_wolfssl=true rtc_build_ssl=false rtc_ssl_root=\"/usr/local/include\"\'"
+        ./src/build/install-build-deps.sh --no-chromeos-fonts
+        ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=arm
+fi
+
+cd src
+git checkout branch-heads/4147
+
+#to update the path to depot_tools/gn and ninja
+errormsg=$( gclient sync 2>&1)
+if [[ "$errormsg" == *"error"* ]]; then
+        echo $errormsg
+        exit 1;
+fi
+
+#ubuntu debug build
+if [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = true ]; then
+	gn gen out/"$platform"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag use_debug_fission=false"
+#ubuntu release build
+elif [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = false ]; then
+	gn gen out/"$platform"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag"
+#raspberry-pi debug build
+elif [ "$target_os" == "raspberry-pi" ] && [ "$debug_flag" = true ]; then
+	gn gen out/"$platform"/"$build_type" "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false"
+else 
+#raspberry-pi release build
+	gn gen out/"$platform"/"$build_type" "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false"
 fi
 
 #ninja cmd to compile the required webrtc libraries
-webrtc_libs = boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
-errormsg=$( ninja -C out/$build_type/ $webrtc_libs 2>&1)
-if [[ "$errormsg" == *"error"* ]] || [[ "$errormsg" == *"fatal"* ]]; then
-	echo $errormsg
-	exit 1;
-fi
+ninja -C out/"$platform"/"$build_type" boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
