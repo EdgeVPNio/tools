@@ -62,10 +62,10 @@ elif [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = false ]; then
 	gn gen out/"$platform"/"$build_type" "--args=is_debug=$debug_flag target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin"\"
 #raspberry-pi debug build
 elif [ "$target_os" == "raspberry-pi" ] && [ "$debug_flag" = true ]; then
-        gn gen out/"$platform"/"$build_type" "--args='target_cpu=\"arm\" use_lld=true use_debug_fission=false target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" is_debug=$debug_flag clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin\""
+        gn gen out/"$platform"/"$build_type" "--args=target_cpu=\"arm\" use_lld=true use_debug_fission=false target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" is_debug=$debug_flag clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin\""
 else
 #raspberry-pi release build
-	gn gen out/"$platform"/"$build_type" "--args='target_cpu=\"arm\" use_lld=true target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" is_debug=$debug_flag clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin\""
+	gn gen out/"$platform"/"$build_type" "--args=target_cpu=\"arm\" use_lld=true target_sysroot_dir=\"\"$Workspace_root\"/EdgeVPNio/external\" is_debug=$debug_flag clang_base_path=\"\"$Workspace_root\"/EdgeVPNio/tools/llvm/bin\""
 fi
 
 ninja -C out/"$platform"/"$build_type"

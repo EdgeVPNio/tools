@@ -93,11 +93,11 @@ elif [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = false ]; then
 	gn gen out/"$platform"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag"
 #raspberry-pi debug build
 elif [ "$target_os" == "raspberry-pi" ] && [ "$debug_flag" = true ]; then
-	gn gen out/"$platform"/"$build_type" "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false"
+	gn gen out/"$platform"/"$build_type" "--args=target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false"
 else 
 #raspberry-pi release build
-	gn gen out/"$platform"/"$build_type" "--args='target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false"
+	gn gen out/"$platform"/"$build_type" "--args=target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false"
 fi
 
 #ninja cmd to compile the required webrtc libraries
-ninja -C out/"$platform"/"$build_type" boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
+ninja -C out/"$platform"/"$build_type" libc++ boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
