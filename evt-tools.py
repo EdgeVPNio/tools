@@ -5,7 +5,7 @@ from scripts.Link import Link
 import subprocess
 import os
 
-SH = "ev-tools.sh"
+SH = ".\ev-tools.sh"
 
 
 class EvtTools:
