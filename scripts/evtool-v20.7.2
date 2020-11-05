@@ -98,8 +98,13 @@ function make_dkrimg
   mkdir -p ~/workspace/out/docker-image
   cd ~/workspace/$EdgeVPNIO/tools
   mv ../../out/debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
+  wd=$(pwd)
+  cd ../../out/debian-package/
+  NAME=`ls | grep *.deb`
+  version=$(echo $NAME | cut -d_ -f2)
+  cd $wd
     docker build -f ./docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 ../../out/docker-image && \
-    docker build -f ./docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:20.7.3 ../../out/docker-image
+    docker build -f ./docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:"$version" ../../out/docker-image
     
 }
 

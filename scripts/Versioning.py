@@ -1,5 +1,6 @@
 import os
 import time
+import subprocess
 import fileinput
 import sys
 from scripts.tool_config import CONTROL_VER as control
@@ -23,8 +24,8 @@ class Versioning:
 
         wd = os.getcwd()
         location1 = "~/workspace/EdgeVPNIO/evio/tincan/trunk/include/tincan_version.h"
-        #location = '.'
-        os.chdir(location1)
+        location = '.'
+        os.chdir(location)
         # version_h_r = open("tincan_version.h", 'r').read()
         # version_h_w = open("tincan_version.h", 'w')
         # m = version_h_r.replace("static const uint16_t kTincanVerMjr = 0;", "static const uint16_t kTincanVerMjr = " + major + ";")
@@ -96,17 +97,25 @@ class Versioning:
             c_file.write("EVIO_VER_BLD = " + str(build) + "\n")
             c_file.write("EVIO_VER_CTL = " + str(control) + "\n")
         os.replace('Version.py', location2)
-        os.chdir(wd)
         os.chdir("../debian-package")
-        for line in fileinput.input('./deb-gen', inplace=True):
+        # for line in fileinput.input('./deb-gen', inplace=True):
+        #     if line.strip().startswith('Version'):
+        #         if official:
+        #             line = 'Version : ' + ver + '\n'
+        #         else:
+        #             line = 'Version : ' + ver + '-dev\n'
+        #     sys.stdout.write(line)
+        subprocess.run("./debian-config")
+        for line in fileinput.input('./edge-vpnio/DEBIAN/control', inplace=True):
             if line.strip().startswith('Version'):
                 if official:
                     line = 'Version : ' + ver + '\n'
                 else:
                     line = 'Version : ' + ver + '-dev\n'
             sys.stdout.write(line)
-    #os.replace('./temp', './deb-gen')
-        # os.rename(r'./temp', r'./deb-gen')
+            os.chdir(wd)
+    # os.replace('./temp', './deb-gen')
+    # os.rename(r'./temp', r'./deb-gen')
 
 
 if __name__ == '__main__':
