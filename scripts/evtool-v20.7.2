@@ -32,7 +32,7 @@ function pull_src
 
 function make_debpak ()
 {
-  python3 ./scripts/Versioning.py
+  python3 ./scripts/Versioning.py true
   wd=$(pwd)
   cd ~/workspace
   mkdir -p out
