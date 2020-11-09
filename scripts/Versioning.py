@@ -3,37 +3,29 @@ import time
 import subprocess
 import fileinput
 import sys
-from scripts.tool_config import CONTROL_VER as control
-from scripts.tool_config import OFFICIAL as official
-from scripts.tool_config import MAJOR_VER as mjr
-from scripts.tool_config import MINOR_VER as mnr
-from scripts.tool_config import REVISION_VER as rvn
+import shutil
+from tool_config import CONTROL_VER as control
+from tool_config import OFFICIAL as official
+from tool_config import MAJOR_VER as mjr
+from tool_config import MINOR_VER as mnr
+from tool_config import REVISION_VER as rvn
 
 
 class Versioning:
-    def changeVersionInTincan(self, major, minor, revision, build):
+    def changeVersionInTincan(self):
         major = mjr
         minor = mnr
         revision = rvn
         if official:
-            build = 0
             ver = str(mjr) + "." + str(mnr) + "." + str(revision)
         else:
-            build = int(time.time())
+            build = int(str(time.time())[-6:])
             ver = str(mjr) + "." + str(mnr) + "." + str(revision) + "." + str(build)
 
         wd = os.getcwd()
-        location1 = "~/workspace/EdgeVPNIO/evio/tincan/trunk/include/tincan_version.h"
-        location = '.'
+        location1 = os.environ['HOME'] + "/workspace/EdgeVPNio/evio/tincan/trunk/include"
+        location = './scripts'
         os.chdir(location)
-        # version_h_r = open("tincan_version.h", 'r').read()
-        # version_h_w = open("tincan_version.h", 'w')
-        # m = version_h_r.replace("static const uint16_t kTincanVerMjr = 0;", "static const uint16_t kTincanVerMjr = " + major + ";")
-        # m = version_h_r.replace("static const uint16_t kTincanVerMnr = 0;", "static const uint16_t kTincanVerMnr = " + minor + ";")
-        # m = version_h_r.replace("static const uint16_t kTincanVerRev = 0;", "static const uint16_t kTincanVerRev = " + revision + ";")
-        # m = version_h_r.replace("static const uint16_t kTincanVerBld = 0;", "static const uint16_t kTincanVerBld = " + build + ";")
-        # version_h_w.write(m)
-        # os.chdir(wd)
         str1 = "/*\n* EdgeVPNio\n* Copyright 2020, University of Florida\n*\n" \
                "* Permission is hereby granted, free of charge, to any person obtaining a copy\n" \
                "* of this software and associated documentation files (the \"Software\"), to deal\n" \
@@ -53,7 +45,7 @@ class Versioning:
                "* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\n" \
                "* THE SOFTWARE.\n" \
                "*/\n"
-        with open('tincan_version.h', 'w') as t_file:
+        with open('./tincan_version.h', 'w') as t_file:
             t_file.write(str1)
             t_file.write("#ifndef TINCAN_VERSION_H_\n")
             t_file.write("#define TINCAN_VERSION_H_\n")
@@ -66,7 +58,11 @@ class Versioning:
             t_file.write("    static const uint8_t kTincanControlVer = " + str(control) + ";\n")
             t_file.write("} // namespace tincan\n")
             t_file.write("#endif // TINCAN_VERSION_H_")
-        os.replace('tincan_version.h', location1)
+
+        src = os.path.join(os.getcwd(), 'tincan_version.h')
+        filename = os.path.basename(src)
+        dest = os.path.join(location1, filename)
+        shutil.move(src, dest)
         str1 = "#\n# EdgeVPNio\n# Copyright 2020, University of Florida\n#\n" \
                "# Permission is hereby granted, free of charge, to any person obtaining a copy\n" \
                "# of this software and associated documentation files (the \"Software\"), to deal\n" \
@@ -86,7 +82,7 @@ class Versioning:
                "# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\n" \
                "# THE SOFTWARE.\n" \
                "#/\n"
-        location2 = "~/workspace/EdgeVPNIO/evio/controller/framework/Version.py"
+        location2 = os.environ['HOME'] + "/workspace/EdgeVPNio/evio/controller/framework"
         with open('Version.py', 'w') as c_file:
             c_file.write(str1)
             c_file.write("\n")
@@ -96,28 +92,22 @@ class Versioning:
             c_file.write("EVIO_VER_REV = " + str(revision) + "\n")
             c_file.write("EVIO_VER_BLD = " + str(build) + "\n")
             c_file.write("EVIO_VER_CTL = " + str(control) + "\n")
-        os.replace('Version.py', location2)
-        os.chdir("../debian-package")
-        # for line in fileinput.input('./deb-gen', inplace=True):
-        #     if line.strip().startswith('Version'):
-        #         if official:
-        #             line = 'Version : ' + ver + '\n'
-        #         else:
-        #             line = 'Version : ' + ver + '-dev\n'
-        #     sys.stdout.write(line)
-        subprocess.run("./debian-config")
-        for line in fileinput.input('./edge-vpnio/DEBIAN/control', inplace=True):
-            if line.strip().startswith('Version'):
-                if official:
-                    line = 'Version : ' + ver + '\n'
-                else:
-                    line = 'Version : ' + ver + '-dev\n'
-            sys.stdout.write(line)
-            os.chdir(wd)
-    # os.replace('./temp', './deb-gen')
-    # os.rename(r'./temp', r'./deb-gen')
-
+        src1 = os.path.join(os.getcwd(), 'Version.py')
+        filename1 = os.path.basename(src1)
+        dest1 = os.path.join(location2, filename1)
+        shutil.move(src1, dest1)
+        if len(sys.argv) > 1:
+            os.chdir("../debian-package")
+            subprocess.run("./debian-config")
+            for line in fileinput.input('./edge-vpnio/DEBIAN/control', inplace=True):
+                if line.strip().startswith('Version'):
+                    if official:
+                        line = 'Version : ' + ver + '\n'
+                    else:
+                        line = 'Version : ' + ver + '-dev\n'
+                sys.stdout.write(line)
+        os.chdir(wd)
 
 if __name__ == '__main__':
     version = Versioning()
-    version.changeVersionInTincan(20, 10, 0, 192385)
+    version.changeVersionInTincan()

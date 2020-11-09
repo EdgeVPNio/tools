@@ -30,16 +30,17 @@ function pull_src
   cd $wd
 }
 
-function make_debpak
+function make_debpak ()
 {
+  python3 ./scripts/Versioning.py
   wd=$(pwd)
   cd ~/workspace
   mkdir -p out
   cd ~/workspace/$EdgeVPNIO/tools
-  cp ./debian-package ../../out
-  cp ../evio/controller/Controller.py ../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  cp -r ./debian-package ../../out
+  cp -r ../evio/controller/Controller.py ../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
   mkdir -p ../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/
-  cp ../evio/controller/template-config.json ../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
+  cp -r ../evio/controller/template-config.json ../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
   cp -r ../evio/controller/modules/ ../evio/controller/framework/ ../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
   chmod 0775 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/framework/ && \
   chmod 0664 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/framework/* && \
@@ -47,7 +48,7 @@ function make_debpak
   chmod 0664 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/modules/* && \
   chmod 0664 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/Controller.py && \
   chmod 0664 ../../out/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
-  cp ../evio/tincan/trunk/out/release/x86_64/tincan ../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
+  cp -r ../evio/tincan/out/"$2"/"$1"/tincan ../../out/debian-package/edge-vpnio/opt/edge-vpnio/ && \
   chmod 0775 ../../out/debian-package/edge-vpnio/opt/edge-vpnio/tincan && \
   cd ../../out/debian-package/ && \
   ./deb-gen && \
@@ -95,9 +96,10 @@ function make_venv
 
 function make_dkrimg
 {
+  python3 ./scripts/Versioning.py
   mkdir -p ~/workspace/out/docker-image
   cd ~/workspace/$EdgeVPNIO/tools
-  mv ../../out/debian-package/edge-vpnio_20.7_amd64.deb docker-image/  && \
+  mv ../../out/debian-package/*.deb ~/workspace/out/docker-image  && \
   wd=$(pwd)
   cd ../../out/debian-package/
   NAME=`ls | grep *.deb`
@@ -138,7 +140,7 @@ function do_clean
   cd ~/workspace/out/
   #debian pak
   cd ./debian-package/ && \
-  rm -ri ./edge-vpnio_20.7_amd64.deb \
+  rm -ri ./*.deb \
     edge-vpnio/opt/edge-vpnio/framework \
     edge-vpnio/opt/edge-vpnio/modules \
     edge-vpnio/opt/edge-vpnio/tincan \
@@ -146,7 +148,7 @@ function do_clean
     edge-vpnio/opt/edge-vpnio/Controller.py
   # docker-image
   cd ..
-  rm -f docker-image/edge-vpnio_20.7_amd64.deb
+  rm -f docker-image/*.deb
   docker rmi edgevpnio/evio-base:1.0 edgevpnio/evio-node:20.7
   docker rmi $(docker images -q --filter "dangling=true")
   # testbed
@@ -173,6 +175,7 @@ function build_webrtc()
 }
 
 function build_tincan() {
+  python3 ./scripts/Versioning.py
   wd=$(pwd)
   cd $WorkspaceRoot
   chmod +x $Build_Tincan
@@ -200,7 +203,16 @@ case $1 in
     pull_src
     ;;
   debpak)
-    make_debpak
+    make_debpak debug debian-x64
+      ;;
+  debpak_release)
+    make_debpak release debian-x64
+      ;;
+  debpak_arm_debug)
+    make_debpak debug debian-arm
+      ;;
+  debpak_arm_release)
+    make_debpak release debian-arm
     ;;
   dkrimg)
     make_dkrimg
