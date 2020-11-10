@@ -1,6 +1,6 @@
 #!/bin/sh
 
-type <<! > edge-vpnio/DEBIAN/control
+cat <<! > edge-vpnio/DEBIAN/control
 Package: edge-vpnio
 Name: EdgeVPNio
 Version : 20.10.0.1604343933-dev

@@ -10,7 +10,7 @@ from tool_config import MAJOR_VER as mjr
 from tool_config import MINOR_VER as mnr
 from tool_config import REVISION_VER as rvn
 
-
+n = len(sys.argv)
 class Versioning:
     def changeVersionInTincan(self):
         major = mjr
@@ -96,18 +96,19 @@ class Versioning:
         filename1 = os.path.basename(src1)
         dest1 = os.path.join(location2, filename1)
         shutil.move(src1, dest1)
-        if len(sys.argv) > 1:
-            os.chdir("../debian-package")
-            subprocess.run("./debian-config")
-            for line in fileinput.input('./edge-vpnio/DEBIAN/control', inplace=True):
-                if line.strip().startswith('Version'):
-                    if official:
-                        line = 'Version : ' + ver + '\n'
-                    else:
-                        line = 'Version : ' + ver + '-dev\n'
-                sys.stdout.write(line)
+        os.chdir("../debian-package")
+        subprocess.run("./debian-config")
+        for line in fileinput.input('./edge-vpnio/DEBIAN/control', inplace=True):
+            if line.strip().startswith('Version'):
+                if official:
+                   line = 'Version : ' + ver + '\n'
+                else:
+                   line = 'Version : ' + ver + '-dev\n'
+            sys.stdout.write(line)
         os.chdir(wd)
 
 if __name__ == '__main__':
     version = Versioning()
+
     version.changeVersionInTincan()
+

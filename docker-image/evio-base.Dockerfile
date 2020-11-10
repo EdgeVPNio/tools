@@ -19,3 +19,4 @@ RUN apt-get update -y && apt-get install -y \
 COPY ./setup-prereqs.sh .
 RUN chmod +x ./setup-prereqs.sh
 RUN ./setup-prereqs.sh
+

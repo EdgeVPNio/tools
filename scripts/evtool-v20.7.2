@@ -15,7 +15,7 @@ function install_build_tools
   sudo bash -c "
     apt-get update -y && \
     apt-get install -y git \
-    make clang libc++-dev libssl-dev $PY"  
+    make clang libc++-dev libssl-dev $PY"
 }
 
 function pull_src
@@ -32,8 +32,9 @@ function pull_src
 
 function make_debpak ()
 {
-  python3 ./scripts/Versioning.py true
+  python3 ./scripts/Versioning.py
   wd=$(pwd)
+  rm -rf ~/workspace/out/docker-image/*.deb
   cd ~/workspace
   mkdir -p out
   cd ~/workspace/$EdgeVPNIO/tools
@@ -97,17 +98,17 @@ function make_venv
 function make_dkrimg
 {
   python3 ./scripts/Versioning.py
-  mkdir -p ~/workspace/out/docker-image
   cd ~/workspace/$EdgeVPNIO/tools
+  cp -r docker-image ../../out/
   mv ../../out/debian-package/*.deb ~/workspace/out/docker-image  && \
   wd=$(pwd)
-  cd ../../out/debian-package/
+  cd ../../out/docker-image/
   NAME=`ls | grep *.deb`
-  version=$(echo $NAME | cut -d_ -f2)
+  version=$(echo "$NAME" | cut -d_ -f2)
   cd $wd
     docker build -f ./docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 ../../out/docker-image && \
     docker build -f ./docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:"$version" ../../out/docker-image
-    
+
 }
 
 function install_openfire
@@ -127,7 +128,7 @@ function install_portal
   git clone https://github.com/edgevpnio/portal.git
   cd portal/setup
   ./setup.sh
-  chown -R $USER /users/$USER/  
+  chown -R $USER /users/$USER/
 }
 
 function do_clean
@@ -260,3 +261,4 @@ case $1 in
     echo "no match on input -> $1"
     ;;
 esac
+

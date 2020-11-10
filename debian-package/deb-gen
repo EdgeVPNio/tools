@@ -2,4 +2,4 @@
 
 dpkg-deb --build --root-owner-group edge-vpnio .
 rm -f edge-vpnio/DEBIAN/control
-rm -f EdgeVPNio/tools/debian-package/edge-vpnio/DEBIAN/control
+rm -f ~/workspace/EdgeVPNio/tools/debian-package/edge-vpnio/DEBIAN/control
