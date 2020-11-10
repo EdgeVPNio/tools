@@ -5,7 +5,7 @@ from scripts.Link import Link
 import subprocess
 import os
 
-SH = "ev-tools.sh"
+SH = "./ev-tools.sh"
 
 
 class EvtTools:
@@ -22,7 +22,13 @@ class EvtTools:
         parser.add_argument("--src", action="store_true", default=False, dest="src",
                             help="Clones EVIO repo.")
         parser.add_argument("--debpak", action="store_true", default=False, dest="debpak",
-                            help="Generates the Debian package.")
+                            help="Generates the Ubuntu Debian x64 debug package.")
+        parser.add_argument("--debpak_rel", action="store_true", default=False, dest="debpak_r",
+                            help="Generates the Ubuntu Debian x64 release package.")
+        parser.add_argument("--debpak_arm_dbg", action="store_true", default=False, dest="debpak_a_d",
+                            help="Generates the ARM Debian debug package.")
+        parser.add_argument("--debpak_arm_rel", action="store_true", default=False, dest="debpak_a_r",
+                            help="Generates the ARM Debian release package.")
         parser.add_argument("--testbed", action="store_true", default=False, dest="testbed",
                             help="Installs required dependencies for a testbed.")
         parser.add_argument("--venv", action="store_true", default=False, dest="venv",
@@ -78,6 +84,18 @@ class EvtTools:
     def debpak(self):
         if self.check_for_link():
             subprocess.run([SH + " debpak"], shell=True)
+
+    def debpak_release(self):
+        if self.check_for_link():
+            subprocess.run([SH + " debpak_release"], shell=True)
+
+    def debpak_arm_debug(self):
+        if self.check_for_link():
+            subprocess.run([SH + " debpak_arm_debug"], shell=True)
+
+    def debpak_arm_release(self):
+        if self.check_for_link():
+            subprocess.run([SH + " debpak_arm_release"], shell=True)
 
     def testbed(self):
         if self.check_for_link():
@@ -154,6 +172,18 @@ def main():
 
     if tools.args.debpak:
         tools.debpak()
+        return
+
+    if tools.args.debpak_r:
+        tools.debpak_release()
+        return
+
+    if tools.args.debpak_a_d:
+        tools.debpak_arm_debug()
+        return
+
+    if tools.args.debpak_a_r:
+        tools.debpak_arm_release()
         return
 
     if tools.args.testbed:
