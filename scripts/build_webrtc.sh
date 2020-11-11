@@ -69,9 +69,8 @@ fi
 
 if [ "$target_os" == "ubuntu" ]; then
         sudo apt-get install gtk2.0
-        ./src/build/install-build-deps.sh --no-chromeos-fonts
+        ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=x64
 else
-        ./src/build/install-build-deps.sh --no-chromeos-fonts
         ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=arm
 fi
 
