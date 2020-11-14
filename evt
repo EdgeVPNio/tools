@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-#Copyright (c) <2020> <EdgeVPN>
+#Copyright (c) <2020> <EdgeVPNio>
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy
 #of this software and associated documentation files (the "Software"), to deal
@@ -19,4 +19,17 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-python evt-tools.py "$@"
+
+PY=python3.8
+case $1 in
+  sync)
+    source venv/bin/activate
+    $PY ./scripts/Sync.py
+    ;;
+  setup)
+    ./setup-evt.sh
+    ;;
+  *)
+    ./evio-tools.sh "$@"
+    ;;
+esac    

@@ -11,4 +11,11 @@ venv/
 __init__.py
 __pycache__/
 *.py[cod]
-ev-tools.sh
+
+/evio-tools.sh
+/evio-tools
+debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json
+debian-package/edge-vpnio/opt/edge-vpnio/framework
+debian-package/edge-vpnio/opt/edge-vpnio/modules
+debian-package/edge-vpnio/opt/edge-vpnio/Controller.py
+debian-package/edge-vpnio/opt/edge-vpnio/tincan
