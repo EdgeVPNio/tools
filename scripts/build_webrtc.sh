@@ -7,9 +7,9 @@
 helpFunction()
 {
 	echo ""
-	echo "Usage: $0 -b build_type -t target_os"
+	echo "Usage: $0 -b build_type -t target"
 	echo -e "\t-b build_type can be $build_type or debug"
-	echo -e "\t-t target_os can be ubuntu or raspberry-pi"
+	echo -e "\t-t target can be debian-x64 or debian-arm"
 	exit 1 # Exit script after printing help
 }
 
@@ -17,34 +17,28 @@ while getopts b:t: opt
 do
 	case "$opt" in
 		b ) build_type="$OPTARG" ;;
-		t ) target_os="$OPTARG" ;;
+		t ) target="$OPTARG" ;;
 		? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
 	esac
 done
 
 # Print helpFunction in case parameters are empty
-if [ -z "$build_type" ] || [ -z "$target_os" ]
+if [ -z "$build_type" ] || [ -z "$target" ]
 then
 	echo "Some or all of the parameters are empty";
 	helpFunction
 fi
 if [ "$build_type" != "debug" ] && [ "$build_type" != "$build_type" ]; then
-	echo "Wrong build_type spelling"
+	echo "Wrong build type spelling"
 	helpFunction
-elif [ "$target_os" != "ubuntu" ] && [ "$target_os" != "raspberry-pi" ]; then
-	echo "Wrong OS type spelling"
+elif [ "$target" != "debian-x64" ] && [ "$target" != "debian-arm" ]; then
+	echo "Wrong target spelling"
 	helpFunction
 fi
 #for gn cmd
 debug_flag=false
 if [ "$build_type" == "debug" ]; then
-	$debug_flag = true;
-fi
-
-if [[ "$target_os" == "ubuntu" ]]; then
-        platform="debian-x64"
-elif [[ "$target_os" == "raspberry-pi" ]]; then
-        platform="debian-arm"
+	debug_flag=true;
 fi
 
 Workspace_root=`pwd`
@@ -67,7 +61,7 @@ if [[ "$errormsg" == *"error"* ]]; then
         exit 1;
 fi
 
-if [ "$target_os" == "ubuntu" ]; then
+if [ "$target" == "debian-x64" ]; then
         sudo apt-get install gtk2.0
         ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=x64
 else
@@ -84,19 +78,19 @@ if [[ "$errormsg" == *"error"* ]]; then
         exit 1;
 fi
 
-#ubuntu debug build
-if [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = true ]; then
-	gn gen out/"$platform"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag use_debug_fission=false"
-#ubuntu release build
-elif [ "$target_os" == "ubuntu" ] && [ "$debug_flag" = false ]; then
-	gn gen out/"$platform"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag"
-#raspberry-pi debug build
-elif [ "$target_os" == "raspberry-pi" ] && [ "$debug_flag" = true ]; then
-	gn gen out/"$platform"/"$build_type" "--args=target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false"
+#debian-x64 debug build
+if [ "$target" == "debian-x64" ] && [ "$debug_flag" = true ]; then
+	gn gen out/"$target"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag use_debug_fission=false"
+#debian-x64 release build
+elif [ "$target" == "debian-x64" ] && [ "$debug_flag" = false ]; then
+	gn gen out/"$target"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag"
+#raspberry-pi/debian-arm debug build
+elif [ "$target" == "raspberry-pi" ] && [ "$debug_flag" = true ]; then
+	gn gen out/"$target"/"$build_type" "--args=target=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false"
 else 
-#raspberry-pi release build
-	gn gen out/"$platform"/"$build_type" "--args=target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false"
+#raspberry-pi/debian-arm release build
+	gn gen out/"$target"/"$build_type" "--args=target=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false"
 fi
 
 #ninja cmd to compile the required webrtc libraries
-ninja -C out/"$platform"/"$build_type" libc++ boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
+ninja -C out/"$target"/"$build_type" libc++ boringssl boringssl_asm protobuf_lite rtc_p2p rtc_base_approved rtc_base jsoncpp rtc_event logging pc api rtc_pc_base call
