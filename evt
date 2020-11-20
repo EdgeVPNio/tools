@@ -20,16 +20,11 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-PY=python3.8
 case $1 in
-  sync)
-    source venv/bin/activate
-    $PY ./scripts/Sync.py
-    ;;
   setup)
     ./setup-evt.sh
     ;;
   *)
-    ./evio-tools.sh "$@"
+    ./scripts/evio-tools-v20.7.2 "$@"
     ;;
 esac    

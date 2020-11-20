@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# EVIO_REPO=https://github.com/EdgeVPNio/evio.git
-# EXT_REPO=https://github.com/EdgeVPNio/external.git
-# TOOLS_REPO=https://github.com/EdgeVPNio/tools.git
-# PORTAL_REPO=https://github.com/EdgeVPNio/portal.git
+EVIO_REPO=https://github.com/EdgeVPNio/evio.git
+EXT_REPO=https://github.com/EdgeVPNio/external.git
+TOOLS_REPO=https://github.com/EdgeVPNio/tools.git
+PORTAL_REPO=https://github.com/EdgeVPNio/portal.git
 PY=python3.8
 WorkspaceRoot=$(readlink -e ../..)
 
@@ -32,6 +32,26 @@ function display_env
   echo EVIO_DIR=$EVIO_DIR
   echo EXT_DIR=$EXT_DIR
   echo TOOLS_DIR=$TOOLS_DIR
+}
+
+function update_repo
+{
+  rv=$(git -C $1 rev-parse --is-inside-work-tree)
+  if [ $rv == "true" -o $rv == "false" ]; then
+    git -C $1 pull $2
+  else
+    mkdir -p $1
+    git -C $1 clone $2
+  fi  
+}
+
+function sync_repos
+{
+  update_repo $EVIO_DIR $EVIO_REPO
+  update_repo $EXT_DIR $EXT_REPO
+  update_repo $TOOLS_DIR $TOOLS_REPO
+  update_repo $PORTAL_DIR $PORTAL_REPO
+
 }
 
 function make_debpak
@@ -232,7 +252,7 @@ function do_build_debian_arm_release
 source venv/bin/activate
 case $1 in
   sync)
-    $PY ./scripts/Sync.py
+    sync_repos
     ;;
   testbed)
     install_testbed_deps
