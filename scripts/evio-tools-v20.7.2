@@ -40,7 +40,6 @@ function update_repo
   if [ $rv == "true" -o $rv == "false" ]; then
     git -C $1 pull $2
   else
-    mkdir -p $1
     git -C $1 clone $2
   fi  
 }
