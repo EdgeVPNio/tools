@@ -1,7 +1,6 @@
 #!/bin/bash
-#Ensure git works in the setup
-#steps to install webrtc M84[4147] version for debug/release build_type on ubuntu/raspberry-pi target os
 
+#Build webrtc branch M84[4147] for debug/release on Debian
 
 #basic parameter checks on script
 helpFunction()
@@ -61,11 +60,12 @@ if [[ "$errormsg" == *"error"* ]]; then
         exit 1;
 fi
 
-if [ "$target" == "debian-x64" ]; then
-        sudo apt-get install gtk2.0
-        ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=x64
-else
-        ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=arm
+sudo apt-get install -y gtk2.0
+echo Downloading Debian AMD64 sysroot
+./src/build/linux/sysroot_scripts/install-sysroot.py --arch=x64
+if [ "$target" == "debian-arm" ]; then
+  echo Downloading Debian ARM sysroot
+  ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=arm
 fi
 
 cd src
@@ -77,7 +77,7 @@ if [[ "$errormsg" == *"error"* ]]; then
         echo $errormsg
         exit 1;
 fi
-
+export PATH=$Workspace_root/webrtc-checkout/depot_tools/bootstrap-3.8.0.chromium.8_bin/python/bin:"$PATH"
 #debian-x64 debug build
 if [ "$target" == "debian-x64" ] && [ "$debug_flag" = true ]; then
 	gn gen out/"$target"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag use_debug_fission=false"
@@ -86,10 +86,10 @@ elif [ "$target" == "debian-x64" ] && [ "$debug_flag" = false ]; then
 	gn gen out/"$target"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag"
 #raspberry-pi/debian-arm debug build
 elif [ "$target" == "raspberry-pi" ] && [ "$debug_flag" = true ]; then
-	gn gen out/"$target"/"$build_type" "--args=target=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false"
+	gn gen out/"$target"/"$build_type" "--args=target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false"
 else 
 #raspberry-pi/debian-arm release build
-	gn gen out/"$target"/"$build_type" "--args=target=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false"
+	gn gen out/"$target"/"$build_type" "--args=target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false"
 fi
 
 #ninja cmd to compile the required webrtc libraries

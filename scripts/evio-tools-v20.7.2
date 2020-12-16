@@ -37,10 +37,10 @@ function display_env
 function update_repo
 {
   rv=$(git -C $1 rev-parse --is-inside-work-tree)
-  if [ $rv == "true" -o $rv == "false" ]; then
-    git -C $1 pull $2
+  if [ "$rv" == "true" -o "$rv" == "false" ]; then
+    git -C "$(dirname $1)" pull "$2"
   else
-    git -C $1 clone $2
+    git -C "$(dirname $1)" clone "$2"
   fi  
 }
 
