@@ -3,7 +3,8 @@
 cd /opt/edge-vpnio
 python3.8 -m venv venv
 source venv/bin/activate
-pip3 --no-cache-dir install wheel psutil slixmpp requests simplejson ryu
+pip3 --no-cache-dir install wheel
+pip3 --no-cache-dir install psutil slixmpp requests simplejson ryu
 deactivate
 systemctl daemon-reload
 systemctl enable evio

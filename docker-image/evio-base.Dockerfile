@@ -7,9 +7,10 @@ RUN apt-get update -y && apt-get install -y \
     iputils-ping \
     nano \
     python3.8 \
-    python3-dev \
+    python3.8-dev \
+    python3.8-venv \
     python3-pip \
-    python3-venv \
+    python3-wheel \
     iproute2 \
     openvswitch-switch \
     bridge-utils \
