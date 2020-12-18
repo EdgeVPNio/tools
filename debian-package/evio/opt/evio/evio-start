@@ -1,10 +1,10 @@
 #! /bin/bash
 
 evio_start() {
-    cd /opt/edge-vpnio
+    cd /opt/evio
     ./tincan &
     source venv/bin/activate
-    python Controller.py -c /etc/opt/edge-vpnio/config.json &
+    python Controller.py -c /etc/opt/evio/config.json &
 }
 
 evio_start

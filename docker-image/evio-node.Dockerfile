@@ -1,7 +1,7 @@
-FROM edgevpnio/evio-base:1.0
+FROM edgevpnio/evio-base:1.1
 WORKDIR /root/
-COPY ./edge-vpnio.deb .
-RUN apt-get install -y ./edge-vpnio.deb && rm -rf /var/lib/apt/lists/* && apt-get autoclean
+COPY ./evio.deb .
+RUN apt-get install -y ./evio.deb && rm -rf /var/lib/apt/lists/* && apt-get autoclean
 
 CMD ["/sbin/init"]
 

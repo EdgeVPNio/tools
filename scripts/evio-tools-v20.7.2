@@ -57,17 +57,17 @@ function make_debpak
 {
   wd=$(pwd)
   # copy controller and tincan files to debpak directory
-  cp -r $WorkspaceRoot/EdgeVPNio/evio/controller/Controller.py $TOOLS_DIR/debian-package/edge-vpnio/opt/edge-vpnio/ && \
-  cp $WorkspaceRoot/EdgeVPNio/evio/controller/template-config.json $TOOLS_DIR/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
-  cp -r $WorkspaceRoot/EdgeVPNio/evio/controller/modules/ $WorkspaceRoot/EdgeVPNio/evio/controller/framework/ $TOOLS_DIR/debian-package/edge-vpnio/opt/edge-vpnio/ && \
-  chmod 0775 $TOOLS_DIR/debian-package/edge-vpnio/opt/edge-vpnio/framework/ && \
-  chmod 0664 $TOOLS_DIR/debian-package/edge-vpnio/opt/edge-vpnio/framework/* && \
-  chmod 0775 $TOOLS_DIR/debian-package/edge-vpnio/opt/edge-vpnio/modules/ && \
-  chmod 0664 $TOOLS_DIR/debian-package/edge-vpnio/opt/edge-vpnio/modules/* && \
-  chmod 0664 $TOOLS_DIR/debian-package/edge-vpnio/opt/edge-vpnio/Controller.py && \
-  chmod 0664 $TOOLS_DIR/debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json && \
-  cp $EVIO_DIR/tincan/out/"$PLATFORM"/"$BUILD_TYPE"/tincan $TOOLS_DIR/debian-package/edge-vpnio/opt/edge-vpnio/ && \
-  chmod 0775 $TOOLS_DIR/debian-package/edge-vpnio/opt/edge-vpnio/tincan
+  cp -r $WorkspaceRoot/EdgeVPNio/evio/controller/Controller.py $TOOLS_DIR/debian-package/evio/opt/evio/ && \
+  cp $WorkspaceRoot/EdgeVPNio/evio/controller/template-config.json $TOOLS_DIR/debian-package/evio/etc/opt/evio/config.json && \
+  cp -r $WorkspaceRoot/EdgeVPNio/evio/controller/modules/ $WorkspaceRoot/EdgeVPNio/evio/controller/framework/ $TOOLS_DIR/debian-package/evio/opt/evio/ && \
+  chmod 0775 $TOOLS_DIR/debian-package/evio/opt/evio/framework/ && \
+  chmod 0664 $TOOLS_DIR/debian-package/evio/opt/evio/framework/* && \
+  chmod 0775 $TOOLS_DIR/debian-package/evio/opt/evio/modules/ && \
+  chmod 0664 $TOOLS_DIR/debian-package/evio/opt/evio/modules/* && \
+  chmod 0664 $TOOLS_DIR/debian-package/evio/opt/evio/Controller.py && \
+  chmod 0664 $TOOLS_DIR/debian-package/evio/etc/opt/evio/config.json && \
+  cp $EVIO_DIR/tincan/out/"$PLATFORM"/"$BUILD_TYPE"/tincan $TOOLS_DIR/debian-package/evio/opt/evio/ && \
+  chmod 0775 $TOOLS_DIR/debian-package/evio/opt/evio/tincan
   if [ $? -ne 0 ]; then
     exit 1
   fi
@@ -78,12 +78,12 @@ function make_debpak
     exit 1
   fi
   # remove previously copied files
-  rm -rf edge-vpnio/opt/edge-vpnio/framework \
-    edge-vpnio/opt/edge-vpnio/modules \
-    edge-vpnio/opt/edge-vpnio/tincan \
-    edge-vpnio/opt/edge-vpnio/template-config.json \
-    edge-vpnio/opt/edge-vpnio/Controller.py \
-    edge-vpnio/etc/opt/edge-vpnio/config.json
+  rm -rf evio/opt/evio/framework \
+    evio/opt/evio/modules \
+    evio/opt/evio/tincan \
+    evio/opt/evio/template-config.json \
+    evio/opt/evio/Controller.py \
+    evio/etc/opt/evio/config.json
   cd $wd
 }
 
@@ -115,12 +115,12 @@ function install_testbed_deps
 function make_dkrimg
 {
   display_env
-  DPK_NAME=edge-vpnio_$VER"_"$ARCH.deb
+  DPK_NAME=evio_$VER"_"$ARCH.deb
   echo docker image using $DPK_NAME
-  cp $OUT_DIR/$DPK_NAME $TOOLS_DIR/docker-image/edge-vpnio.deb && \
-  docker build -f $TOOLS_DIR/docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.0 $TOOLS_DIR/docker-image && \
+  cp $OUT_DIR/$DPK_NAME $TOOLS_DIR/docker-image/evio.deb && \
+  docker build -f $TOOLS_DIR/docker-image/evio-base.Dockerfile -t edgevpnio/evio-base:1.1 $TOOLS_DIR/docker-image && \
   docker build -f $TOOLS_DIR/docker-image/evio-node.Dockerfile -t edgevpnio/evio-node:"$VER" $TOOLS_DIR/docker-image
-  rm $TOOLS_DIR/docker-image/edge-vpnio.deb
+  rm $TOOLS_DIR/docker-image/evio.deb
 }
 
 function install_openfire
@@ -155,11 +155,11 @@ function do_clean
   #debian pak
   cd $TOOLS_DIR/debian-package/ && \
   rm -ri ./*.deb \
-    edge-vpnio/opt/edge-vpnio/framework \
-    edge-vpnio/opt/edge-vpnio/modules \
-    edge-vpnio/opt/edge-vpnio/tincan \
-    edge-vpnio/opt/edge-vpnio/template-config.json \
-    edge-vpnio/opt/edge-vpnio/Controller.py
+    evio/opt/evio/framework \
+    evio/opt/evio/modules \
+    evio/opt/evio/tincan \
+    evio/opt/evio/template-config.json \
+    evio/opt/evio/Controller.py
   # docker-image
   cd ..
   rm -f docker-image/*.deb

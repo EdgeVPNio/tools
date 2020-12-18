@@ -14,8 +14,8 @@ __pycache__/
 
 /evio-tools.sh
 /evio-tools
-debian-package/edge-vpnio/etc/opt/edge-vpnio/config.json
-debian-package/edge-vpnio/opt/edge-vpnio/framework
-debian-package/edge-vpnio/opt/edge-vpnio/modules
-debian-package/edge-vpnio/opt/edge-vpnio/Controller.py
-debian-package/edge-vpnio/opt/edge-vpnio/tincan
+debian-package/evio/etc/opt/evio/config.json
+debian-package/evio/opt/evio/framework
+debian-package/evio/opt/evio/modules
+debian-package/evio/opt/evio/Controller.py
+debian-package/evio/opt/evio/tincan

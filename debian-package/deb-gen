@@ -10,8 +10,8 @@ PkgVer=$3
 PkgArch=$2
 OutDir=$1
 
-cat <<! > edge-vpnio/DEBIAN/control
-Package: edge-vpnio
+cat <<! > evio/DEBIAN/control
+Package: evio
 Name: EdgeVPNio
 Version : $PkgVer
 Maintainer: <ip.over.p2p@gmail.com>
@@ -23,8 +23,8 @@ Description: Virtualized Overlay Networks.
 Tag: P2P Edge Overlay Networking
 !
 if [ $? -ne 0 ]; then
-  rm -f edge-vpnio/DEBIAN/control
+  rm -f evio/DEBIAN/control
   exit 1
 fi
-dpkg-deb --build --root-owner-group edge-vpnio $OutDir
-rm -f edge-vpnio/DEBIAN/control
+dpkg-deb --build --root-owner-group evio $OutDir
+rm -f evio/DEBIAN/control

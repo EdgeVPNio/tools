@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /opt/edge-vpnio
+cd /opt/evio
 python3.8 -m venv venv
 source venv/bin/activate
 pip3 --no-cache-dir install wheel

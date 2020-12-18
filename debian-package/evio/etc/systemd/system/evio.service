@@ -3,7 +3,7 @@ Description=EdgeVPNio service
 
 [Service]
 Type=oneshot
-ExecStart=/opt/edge-vpnio/evio-start
+ExecStart=/opt/evio/evio-start
 RemainAfterExit=true
 Restart=no
 TimeoutStopSec=30

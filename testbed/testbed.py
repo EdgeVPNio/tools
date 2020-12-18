@@ -17,12 +17,12 @@ import ipaddress
 class Testbed():
     __metaclass__ = ABCMeta
 
-    LAUNCH_WAIT = 60
+    LAUNCH_WAIT = 5
     BATCH_SZ = 5
     VIRT = NotImplemented
     APT = spawn.find_executable("apt-get")
     CONTAINER = NotImplemented
-    BF_VIRT_IMG = "edgevpnio/evio-node:20.7"
+    BF_VIRT_IMG = "edgevpnio/evio-node:20.12.0.45-dev"
 
     def __init__(self, exp_dir=None):
         parser = argparse.ArgumentParser(description="Configures and runs EdgeVPN Testbed")
@@ -284,10 +284,10 @@ class DockerTestbed(Testbed):
         if not os.path.isfile(cfg_file):
             self.gen_config(instance, instance+1)
 
-        mount_cfg = "{0}:/etc/opt/edge-vpnio/config.json".format(cfg_file)
-        mount_log = "{0}/:/var/log/edge-vpnio/".format(log_dir)
-        #mount_data = "{0}/:/var/edge-vpnio/".format(self.data_dir)
-        mount_cert = "{0}/:/var/edge-vpnio/cert/".format(self.cert_dir)
+        mount_cfg = "{0}:/etc/opt/evio/config.json".format(cfg_file)
+        mount_log = "{0}/:/var/log/evio/".format(log_dir)
+        #mount_data = "{0}/:/var/evio/".format(self.data_dir)
+        mount_cert = "{0}/:/var/evio/cert/".format(self.cert_dir)
         args = ["--rm", "--privileged"]
         opts = "-d"
         img = Testbed.BF_VIRT_IMG
