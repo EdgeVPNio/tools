@@ -56,6 +56,7 @@ function sync_repos
 function make_debpak
 {
   wd=$(pwd)
+  mkdir -p $TOOLS_DIR/debian-package/evio/etc/opt/evio
   # copy controller and tincan files to debpak directory
   cp -r $WorkspaceRoot/EdgeVPNio/evio/controller/Controller.py $TOOLS_DIR/debian-package/evio/opt/evio/ && \
   cp $WorkspaceRoot/EdgeVPNio/evio/controller/template-config.json $TOOLS_DIR/debian-package/evio/etc/opt/evio/config.json && \
@@ -71,6 +72,7 @@ function make_debpak
   if [ $? -ne 0 ]; then
     exit 1
   fi
+  mkdir -p $OUT_DIR
   # invoke deb-gen to create debian installer package
   cd $TOOLS_DIR/debian-package/ && \
     ./deb-gen $OUT_DIR $ARCH $VER
@@ -267,6 +269,7 @@ case $1 in
     PLATFORM="debian-x64"
     BUILD_TYPE="debug"
     ARCH="amd64"  
+    $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
     make_debpak
       ;;
   debpak_x64_rel)
@@ -274,6 +277,7 @@ case $1 in
     PLATFORM="debian-x64"
     BUILD_TYPE="release"
     ARCH="amd64"   
+    $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
     make_debpak
       ;;
   debpak_arm_dbg)
@@ -281,6 +285,7 @@ case $1 in
     PLATFORM="debian-arm"
     BUILD_TYPE="debug"
     ARCH="armhf"
+    $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
     make_debpak
       ;;
   debpak_arm_rel)
@@ -289,6 +294,7 @@ case $1 in
     BUILD_TYPE="release"
     ARCH="armhf"
     PLATFORM="debian-arm"
+    $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
     make_debpak
     ;;
   dkrimg_x64)
