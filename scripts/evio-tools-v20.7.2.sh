@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#v20.7.2
 EVIO_REPO=https://github.com/EdgeVPNio/evio.git
 EXT_REPO=https://github.com/EdgeVPNio/external.git
 TOOLS_REPO=https://github.com/EdgeVPNio/tools.git
@@ -193,6 +193,7 @@ function build_webrtc()
 function build_tincan {
   cd $WorkspaceRoot
   chmod +x $BuildTincan
+  git -C "$EXT_DIR" checkout $PLATFORM
   $BuildTincan -t $PLATFORM -b $BUILD_TYPE
   if [ $? -ne 0 ]; then
     exit 1
@@ -220,6 +221,7 @@ function do_build_debian_x64_debug
 function do_build_debian_x64_release
 {
   echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
+  #echo running evio build $($PY ./scripts/Versioning.py --build_num)
   $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
   VER=$($PY ./scripts/Versioning.py --version)
   PLATFORM="debian-x64"
@@ -241,7 +243,8 @@ function do_build_debian_arm_debug
 
 function do_build_debian_arm_release
 {
-  echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
+  #echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
+  echo running evio build $($PY ./scripts/Versioning.py --build_num)
   $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
   VER=$($PY ./scripts/Versioning.py --version)
   PLATFORM="debian-arm"
