@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This script should be invoke with the current working directory set to TOOLS_DIR/debian-package.
 
@@ -9,6 +9,10 @@ fi
 PkgVer=$3
 PkgArch=$2
 OutDir=$1
+Deps="python3.8, python3.8-dev, python3.8-venv, python3-pip, python3-wheel, iproute2, openvswitch-switch, bridge-utils"
+if [ "$PkgArch" == "armhf" -o "$PkgArch" = "arm64" ]; then
+  Deps="libffi-dev, $Deps"
+fi
 
 cat <<! > evio/DEBIAN/control
 Package: evio
@@ -17,7 +21,7 @@ Version : $PkgVer
 Maintainer: <ip.over.p2p@gmail.com>
 Architecture: $PkgArch
 Homepage: http://edgevpn.io
-Depends: python3.8, python3.8-dev, python3.8-venv, python3-pip, python3-wheel, iproute2, openvswitch-switch, bridge-utils
+Depends: $Deps
 Description: Virtualized Overlay Networks.
  EdgeVPN is an open-source user-centric software virtual network allowing end users to define and create their own virtual private networks (VPNs). EdgeVPNio virtual networks provide end-to-end tunneling of IP or Ethernet over Tincan links setup and managed through a control API to create various software-defined VPN overlays.
 Tag: P2P Edge Overlay Networking
