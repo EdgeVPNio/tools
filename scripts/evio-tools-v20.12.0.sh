@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#v20.12.0
 EVIO_REPO=https://github.com/EdgeVPNio/evio.git
 EXT_REPO=https://github.com/EdgeVPNio/external.git
 TOOLS_REPO=https://github.com/EdgeVPNio/tools.git
@@ -209,7 +209,7 @@ function do_build
 
 function do_build_debian_x64_debug
 {
-  echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
+  # echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
   $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
   VER=$($PY ./scripts/Versioning.py --version)
   PLATFORM="debian-x64"
@@ -220,7 +220,7 @@ function do_build_debian_x64_debug
 
 function do_build_debian_x64_release
 {
-  echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
+  # echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
   $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
   VER=$($PY ./scripts/Versioning.py --version)
   PLATFORM="debian-x64"
@@ -231,7 +231,7 @@ function do_build_debian_x64_release
 
 function do_build_debian_arm_debug
 {
-  echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
+  # echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
   $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
   VER=$($PY ./scripts/Versioning.py --version)
   PLATFORM="debian-arm"
@@ -242,7 +242,7 @@ function do_build_debian_arm_debug
 
 function do_build_debian_arm_release
 {
-  echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
+  # echo running evio build $($PY ./scripts/Versioning.py --next_build_num)
   $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
   VER=$($PY ./scripts/Versioning.py --version)
   PLATFORM="debian-arm"
@@ -256,7 +256,7 @@ case $1 in
   sync)
     sync_repos
     ;;
-  testbed)
+  setup_testbed)
     install_testbed_deps
     ;;
   xmpp)
@@ -264,6 +264,10 @@ case $1 in
     ;;
   clean)
     echo do_clean
+    ;;
+  next_bld_num)
+    $PY ./scripts/Versioning.py --next_build_num
+    $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
     ;;
   debpak_x64_dbg)
     VER=$($PY ./scripts/Versioning.py --version)
@@ -294,18 +298,28 @@ case $1 in
     PLATFORM="debian-arm"
     BUILD_TYPE="release"
     ARCH="armhf"
-    PLATFORM="debian-arm"
     $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
     make_debpak
     ;;
+  debpak_arm64_dbg)
+    VER=$($PY ./scripts/Versioning.py --version)
+    PLATFORM="debian-arm64"
+    BUILD_TYPE="debug"
+    ARCH="arm64"
+    $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
+    make_debpak
+      ;;
+  debpak_arm64_rel)
+    VER=$($PY ./scripts/Versioning.py --version)
+    PLATFORM="debian-arm64"
+    BUILD_TYPE="release"
+    ARCH="arm64"
+    $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
+    make_debpak
+    ;;    
   dkrimg_x64)
     VER=$($PY ./scripts/Versioning.py --version)
     ARCH="amd64"
-    make_dkrimg
-    ;;
-  dkrimg_arm)
-    VER=$($PY ./scripts/Versioning.py --version)
-    ARCH="armhf"
     make_dkrimg
     ;;
   build_webrtc_dx64_dbg)
@@ -353,6 +367,13 @@ case $1 in
     $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
     VER=$($PY ./scripts/Versioning.py --version)
     PLATFORM="debian-arm"
+    BUILD_TYPE="release"
+    build_tincan
+    ;;
+  build_tincan_darm64_rel)
+    $PY ./scripts/Versioning.py --workspace_root=$WorkspaceRoot --gen_version_files
+    VER=$($PY ./scripts/Versioning.py --version)
+    PLATFORM="debian-arm64"
     BUILD_TYPE="release"
     build_tincan
     ;;
