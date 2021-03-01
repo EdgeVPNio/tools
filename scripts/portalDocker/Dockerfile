@@ -4,8 +4,6 @@ RUN apt-get install -y git
 RUN apt-get install -y curl
 RUN curl -sL https://deb.nodesource.com/setup_15.x | bash -
 RUN apt-get install nodejs
-RUN apt-get install -y wget
-RUN apt-get update
 RUN git clone https://github.com/EdgeVPNio/portal.git
 WORKDIR "/portal"
 RUN npm install --legacy-peer-deps
