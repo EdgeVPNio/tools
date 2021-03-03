@@ -7,6 +7,7 @@ RUN apt-get install nodejs
 RUN git clone https://github.com/EdgeVPNio/portal.git
 WORKDIR "/portal"
 RUN npm install --legacy-peer-deps
-RUN cd views && npm run build
+RUN npm run build
 EXPOSE 5000
-CMD "node server/Server.js"
+COPY ./run.sh .
+CMD ./run.sh
