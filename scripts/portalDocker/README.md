@@ -1,5 +1,11 @@
 # Steps to Run Portal docker
 
+- Create the docker network to run the dockers
+
+    ```shell
+    docker network create evionet
+    ```
+
 - Run the below command to start the mongo DB docker.
 
     ```shell
