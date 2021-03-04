@@ -30,5 +30,5 @@
   The port number can be changed at your convenience.
 
     ```
-    docker run -d -p 5000:5000 --name visualizer -v $HOME/evio/config/.env:/etc/evio/config/.env --rm --privileged --network evionet edgevpnio/evio-portal:0.1
+    docker run -d -p 5000:5000 --name visualizer -v $HOME/evio/portal/.env:/etc/evio/config/.env --rm --privileged --network evionet edgevpnio/evio-portal:0.1
     ```
