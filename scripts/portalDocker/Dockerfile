@@ -8,6 +8,5 @@ RUN git clone https://github.com/EdgeVPNio/portal.git
 WORKDIR "/portal"
 RUN npm install --legacy-peer-deps
 RUN npm run build
-EXPOSE 5000
 COPY ./run.sh .
 CMD ./run.sh

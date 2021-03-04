@@ -1,3 +1,6 @@
 #!/bin/bash
 cp -r /etc/evio/config/.env .
-node server/Server.js
+./startVisualizer.sh start
+while :; do
+  sleep 300
+done
