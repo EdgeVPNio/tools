@@ -1,5 +1,7 @@
 # Steps to Run Portal docker
 
+- Install docker by following the documentation: [docker on ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+
 - Create the docker network to run the dockers
 
     ```shell
