@@ -1,5 +1,6 @@
 [Unit]
 Description=EdgeVPNio service
+After=network.target
 
 [Service]
 Type=oneshot
@@ -9,5 +10,4 @@ Restart=no
 TimeoutStopSec=30
 
 [Install]
-After=network.target
 WantedBy=multi-user.target
