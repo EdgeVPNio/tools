@@ -13,8 +13,12 @@
     ```shell
     docker run -d -p 27017-27019:27017-27019 --network evionet --rm --name mongodb mongo mongod --replSet Evio-rs0
     ```
+    or the below command to start the influx db docker.
+    ```shell
+    docker run --rm -d --network evionet --name influxdb -p 8086:8086 influxdb:1.7
+    ```    
 
-- Run the below command from the host shell:
+- Run the below command from the host shell (skip this step for influxDB):
 
     ```shell
     mongo Evio --eval "rs.initiate()"
@@ -28,10 +32,12 @@
 
 - Copy the configuration file from [.env](https://github.com/EdgeVPNio/portal/blob/master/.env) into the portal directory.
 
-- Replace the value of the key `DB_URI` with the name of the mongo container
+- Replace the value of the key `DB_URI` with the name of the mongo/influx container
 
     ```shell
     DB_URI=mongodb
+    
+    DB_URI=influxdb
     ```
 
 - Run the below command to start the portal container
