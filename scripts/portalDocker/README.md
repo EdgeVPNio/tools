@@ -36,7 +36,9 @@
 
     ```shell
     DB_URI=mongodb
-    
+    ```
+    or
+    ```shell
     DB_URI=influxdb
     ```
 
