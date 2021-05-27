@@ -1,6 +1,6 @@
 #!/bin/bash
 cp -r /etc/evio/config/.env .
-./startVisualizer.sh start
+./visualizer start
 while :; do
   sleep 300
 done
