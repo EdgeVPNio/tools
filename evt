@@ -24,7 +24,11 @@ case $1 in
   setup)
     ./setup-evt.sh
     ;;
+  sync)
+    unlink ./evio-tools
+    ln -s scripts/evio-tools-v$2.sh ./evio-tools
+    ;;
   *)
-    ./scripts/evio-tools-v20.7.2 "$@"
+    ./evio-tools "$@"
     ;;
 esac    
