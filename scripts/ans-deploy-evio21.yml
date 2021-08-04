@@ -1,0 +1,20 @@
+---
+- hosts: evio21
+  become: yes
+  become_method: sudo
+  tasks:
+  - name: Copying evio deb-pak
+    copy:
+      src: /home/kcratie/workspace/out/evio_21.6.0.125-dev_amd64.deb
+      dest: /tmp/
+  - name: Installing evio
+    apt: 
+      deb: /tmp/evio_21.6.0.125-dev_amd64.deb
+  - name: Copying evio configuration
+    copy:
+      src: /home/kcratie/workspace/configs21/config-{{inventory_hostname}}.json
+      dest: /etc/opt/evio/config.json
+  - name: Starting evio daemon
+    service:
+      name: evio
+      state: restarted
