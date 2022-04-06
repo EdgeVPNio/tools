@@ -30,7 +30,7 @@ fi
 if [ "$build_type" != "debug" ] && [ "$build_type" != "$build_type" ]; then
 	echo "Wrong build type spelling"
 	helpFunction
-elif [ "$target" != "debian-x64" ] && [ "$target" != "debian-arm" ]; then
+elif [ "$target" != "debian-x64" ] && [ "$target" != "debian-arm" ] && [ "$target" != "debian-arm64" ]; then
 	echo "Wrong target spelling"
 	helpFunction
 fi
@@ -42,8 +42,9 @@ fi
 
 Workspace_root=`pwd`
 mkdir -p "$Workspace_root"/webrtc-checkout && cd "$Workspace_root"/webrtc-checkout
-git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-
+if [ ! -d "./depot_tools" ]; then
+	git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+fi
 export PATH=$Workspace_root/webrtc-checkout/depot_tools:"$PATH"
 
 #To update the setup with depot_tools in path
@@ -67,7 +68,10 @@ if [ "$target" == "debian-arm" ]; then
   echo Downloading Debian ARM sysroot
   ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=arm
 fi
-
+if [ "$target" == "debian-arm64" ]; then
+  echo Downloading Debian ARM64 sysroot
+  ./src/build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
+fi
 cd src
 git checkout branch-heads/4147
 
@@ -85,11 +89,13 @@ if [ "$target" == "debian-x64" ] && [ "$debug_flag" = true ]; then
 elif [ "$target" == "debian-x64" ] && [ "$debug_flag" = false ]; then
 	gn gen out/"$target"/"$build_type" "--args=enable_iterator_debugging=false is_debug=$debug_flag"
 #raspberry-pi/debian-arm debug build
-elif [ "$target" == "raspberry-pi" ] && [ "$debug_flag" = true ]; then
+elif [ "$target" == "debian-arm" ] && [ "$debug_flag" = true ]; then
 	gn gen out/"$target"/"$build_type" "--args=target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false"
-else 
+elif [ "$target" == "debian-arm" ] && [ "$debug_flag" = false ]; then 
 #raspberry-pi/debian-arm release build
 	gn gen out/"$target"/"$build_type" "--args=target_os=\"linux\" target_cpu=\"arm\" is_debug=$debug_flag enable_iterator_debugging=false"
+elif [ "$target" == "debian-arm64" ] && [ "$debug_flag" = false ]; then 
+	gn gen out/"$target"/"$build_type" "--args=target_os=\"linux\" target_cpu=\"arm64\" is_debug=$debug_flag enable_iterator_debugging=false use_debug_fission=false treat_warnings_as_errors=false clang_use_chrome_plugins=false"
 fi
 
 #ninja cmd to compile the required webrtc libraries

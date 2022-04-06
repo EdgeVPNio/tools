@@ -27,7 +27,7 @@ fi
 if [ "$build_type" != "debug" ] && [ "$build_type" != "release" ]; then
         echo "Wrong build type spelling"
         helpFunction
-elif [ "$target" != "debian-x64" ] && [ "$target" != "debian-arm" ]; then
+elif [ "$target" != "debian-x64" ] && [ "$target" != "debian-arm" ] && [ "$target" != "debian-arm64" ]; then
         echo "Wrong target spelling"
         helpFunction
 fi
@@ -48,9 +48,10 @@ GN="$WrkspaceRoot"/EdgeVPNio/tools/bin/gn
 NJ="$WrkspaceRoot"/EdgeVPNio/tools/bin/ninja
 if [ "$target" == "debian-x64" ]; then
 	$GN gen out/"$target"/"$build_type" "--args=is_debug=$debug_flag target_sysroot_dir=\"$WrkspaceRoot/EdgeVPNio/external\" use_debug_fission=$fission_flag clang_base_path=\"$WrkspaceRoot/EdgeVPNio/tools/llvm/bin"\"
-
 elif [ "$target" == "debian-arm" ]; then
         $GN gen out/"$target"/"$build_type" "--args=target_cpu=\"arm\" use_lld=true use_debug_fission=$fission_flag target_sysroot_dir=\"$WrkspaceRoot/EdgeVPNio/external\" is_debug=$debug_flag clang_base_path=\"$WrkspaceRoot/EdgeVPNio/tools/llvm/bin\""
+elif [ "$target" == "debian-arm64" ]; then
+        $GN gen out/"$target"/"$build_type" "--args=target_cpu=\"arm64\" use_lld=true use_debug_fission=$fission_flag target_sysroot_dir=\"$WrkspaceRoot/EdgeVPNio/external\" is_debug=$debug_flag clang_base_path=\"$WrkspaceRoot/EdgeVPNio/tools/llvm/bin\""
 fi
 
 $NJ -C out/"$target"/"$build_type"

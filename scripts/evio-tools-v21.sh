@@ -56,12 +56,14 @@ function sync_repos
 
 function make_debpak
 {
+  sudo rm -rf $EVIO_DIR/controller/modules/__pycache__/ $TOOLS_DIR/debian-package/evio/opt/evio/modules/__pycache__/
+  display_env
   wd=$(pwd)
   mkdir -p $TOOLS_DIR/debian-package/evio/etc/opt/evio
   # copy controller and tincan files to debpak directory
-  cp -r $WorkspaceRoot/EdgeVPNio/evio/controller/Controller.py $TOOLS_DIR/debian-package/evio/opt/evio/ && \
-  cp $WorkspaceRoot/EdgeVPNio/evio/controller/template-config.json $TOOLS_DIR/debian-package/evio/etc/opt/evio/config.json && \
-  cp -r $WorkspaceRoot/EdgeVPNio/evio/controller/modules/ $WorkspaceRoot/EdgeVPNio/evio/controller/framework/ $TOOLS_DIR/debian-package/evio/opt/evio/ && \
+  cp -r $EVIO_DIR/controller/Controller.py $TOOLS_DIR/debian-package/evio/opt/evio/ && \
+  cp $EVIO_DIR/controller/template-config.json $TOOLS_DIR/debian-package/evio/etc/opt/evio/config.json && \
+  cp -r $EVIO_DIR/controller/modules/ $EVIO_DIR/controller/framework/ $TOOLS_DIR/debian-package/evio/opt/evio/ && \
   chmod 0775 $TOOLS_DIR/debian-package/evio/opt/evio/framework/ && \
   chmod 0664 $TOOLS_DIR/debian-package/evio/opt/evio/framework/* && \
   chmod 0775 $TOOLS_DIR/debian-package/evio/opt/evio/modules/ && \
@@ -141,27 +143,6 @@ function make_dkrimg
   rm $TOOLS_DIR/docker-image/evio.deb
 }
 
-function install_openfire
-{
-  docker run --name openfire -d \
-    -p 9090:9090 -p 5222:5222 \
-    -p 5269:5269 -p 5223:5223 \
-    -p 7443:7443 -p 7777:7777 \
-    -p 7070:7070 -p 5229:5229 \
-    -p 5275:5275 \
-    edgevpnio/openfire_edgevpn_demo
-}
-
-function install_portal
-{
-  #TODO(ken): visualizer not yet available
-  cd $WorkspaceRoot/EdgeVPNio
-  git clone $PORTAL_REPO
-  cd portal/setup
-  ./setup.sh
-  chown -R $USER /users/$USER/
-}
-
 function do_clean
 {
   #TODO(ken): Unit test
@@ -191,6 +172,7 @@ function do_clean
 
 function build_webrtc()
 {
+  display_env
   wd=$(pwd)
   cd $WorkspaceRoot
   chmod +x $BuildWRTC $GetArchives $GetInclude
@@ -207,6 +189,7 @@ function build_webrtc()
 }
 
 function build_tincan {
+  display_env
   cd $WorkspaceRoot
   chmod +x $BuildTincan
   git -C "$EXT_DIR" checkout $PLATFORM
@@ -223,16 +206,6 @@ function do_build
   make_dkrimg
 }
 
-function do_build_debian_x64_debug
-{
-  $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
-  VER=$($PY $Versioning --version)
-  PLATFORM="debian-x64"
-  BUILD_TYPE="debug"
-  ARCH="amd64"
-  do_build
-}
-
 function do_build_debian_x64_release
 {
   $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
@@ -243,13 +216,13 @@ function do_build_debian_x64_release
   do_build
 }
 
-function do_build_debian_arm_debug
+function do_build_debian_arm64_release
 {
   $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
   VER=$($PY $Versioning --version)
-  PLATFORM="debian-arm"
-  BUILD_TYPE="debug"
-  ARCH="armhf"
+  PLATFORM="debian-arm64"
+  BUILD_TYPE="release"
+  ARCH="arm64"
   do_build
 }
 
@@ -271,37 +244,15 @@ case $1 in
   setup_testbed)
     install_testbed_deps
     ;;
-  xmpp)
-    install_openfire
-    ;;
-  clean)
-    echo do_clean
-    ;;
   next_bld_num)
     $PY $Versioning --next_build_num
     $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
-    ;;    
-  debpak_x64_dbg)
-    VER=$($PY $Versioning --version)
-    PLATFORM="debian-x64"
-    BUILD_TYPE="debug"
-    ARCH="amd64"  
-    $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
-    make_debpak
-      ;;
+    ;;
   debpak_x64_rel)
     VER=$($PY $Versioning --version)
     PLATFORM="debian-x64"
     BUILD_TYPE="release"
     ARCH="amd64"   
-    $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
-    make_debpak
-      ;;
-  debpak_arm_dbg)
-    VER=$($PY $Versioning --version)
-    PLATFORM="debian-arm"
-    BUILD_TYPE="debug"
-    ARCH="armhf"
     $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
     make_debpak
       ;;
@@ -313,14 +264,6 @@ case $1 in
     $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
     make_debpak
     ;;
-  debpak_arm64_dbg)
-    VER=$($PY $Versioning --version)
-    PLATFORM="debian-arm64"
-    BUILD_TYPE="debug"
-    ARCH="arm64"
-    $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
-    make_debpak
-      ;;
   debpak_arm64_rel)
     VER=$($PY $Versioning --version)
     PLATFORM="debian-arm64"
@@ -339,27 +282,27 @@ case $1 in
     ARCH="armhf"
     make_dkrimg
     ;;
-  build_webrtc_dx64_dbg)
+  build_webrtc_x64_dbg)
     PLATFORM="debian-x64"
     BUILD_TYPE="debug"
     build_webrtc
     ;;
-  build_webrtc_dx64_rel)
+  build_webrtc_x64_rel)
     PLATFORM="debian-x64"
     BUILD_TYPE="release"
     build_webrtc
     ;;
-  build_webrtc_darm_dbg)
-    PLATFORM="debian-arm"
-    BUILD_TYPE="debug"
+  build_webrtc_arm64_rel)
+    PLATFORM="debian-arm64"
+    BUILD_TYPE="release"
     build_webrtc
     ;;
-  build_webrtc_darm_rel)
+  build_webrtc_arm_rel)
     PLATFORM="debian-arm"
     BUILD_TYPE="release"
     build_webrtc
     ;;
-  build_tincan_dx64_dbg)
+  build_tincan_x64_dbg)
     $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
     VER=$($PY $Versioning --version)
     PLATFORM="debian-x64"
@@ -387,13 +330,6 @@ case $1 in
     BUILD_TYPE="debug"
     build_tincan
     ;;
-  build_tincan_darm_rel)
-    $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
-    VER=$($PY $Versioning --version)
-    PLATFORM="debian-arm"
-    BUILD_TYPE="release"
-    build_tincan
-    ;;
   build_tincan_darm64_rel)
     $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
     VER=$($PY $Versioning --version)
@@ -401,16 +337,20 @@ case $1 in
     BUILD_TYPE="release"
     build_tincan
     ;;
-  build_dx64_dbg)
-    do_build_debian_x64_debug
+  build_tincan_darm_rel)
+    $PY $Versioning --workspace_root=$WorkspaceRoot --gen_version_files
+    VER=$($PY $Versioning --version)
+    PLATFORM="debian-arm"
+    BUILD_TYPE="release"
+    build_tincan
     ;;
-  build_dx64_rel)
+  build_debx64_rel)
     do_build_debian_x64_release
     ;;
-  build_darm_dbg)
-    do_build_debian_arm_debug
+  build_debarm64_rel)
+    do_build_debian_arm64_release
     ;;
-  build_darm_rel)
+  build_debarm_rel)
     do_build_debian_arm_release
     ;;
   *)

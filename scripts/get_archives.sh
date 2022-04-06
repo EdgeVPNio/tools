@@ -27,7 +27,7 @@ fi
 if [ "$build_type" != "debug" ] && [ "$build_type" != "release" ]; then
         echo "Wrong build_type spelling"
         helpFunction
-elif [ "$target" != "debian-x64" ] && [ "$target" != "debian-arm" ]; then
+elif [ "$target" != "debian-x64" ] && [ "$target" != "debian-arm" ] && [ "$target" != "debian-arm64" ]; then
         echo "Wrong OS type spelling"
         helpFunction
 fi

@@ -21,7 +21,7 @@ copyHeaders webrtc-checkout/src/api  out/include/webrtc
 copyHeaders webrtc-checkout/src/base out/include/webrtc
 copyHeaders webrtc-checkout/src/call out/include/webrtc
 copyHeaders webrtc-checkout/src/common_video out/include/webrtc
-copyHeaders webrtc-checkout/src/logging/rtc_event_log out/include/webrtc
+copyHeaders webrtc-checkout/src/logging/rtc_event_log out/include/webrtc/logging
 copyHeaders webrtc-checkout/src/media out/include/webrtc
 copyHeaders webrtc-checkout/src/modules out/include/webrtc
 copyHeaders webrtc-checkout/src/p2p out/include/webrtc
