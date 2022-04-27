@@ -28,53 +28,54 @@ from versioning.tool_config import OFFICIAL
 class Testbed():
     __metaclass__ = ABCMeta
 
-    LAUNCH_WAIT = 5
-    BATCH_SZ = 5
+    LAUNCH_WAIT = 60
+    BATCH_SZ = 8
     VIRT = NotImplemented
     APT = spawn.find_executable("apt-get")
     CONTAINER = NotImplemented
-    BF_VIRT_IMG = "edgevpnio/evio-node:21.6.0.130-dev"
+    BF_VIRT_IMG = "edgevpnio/evio-node:21.9.0"
 
     def __init__(self, exp_dir=None):
         parser = argparse.ArgumentParser(
-            description="Configures and runs EdgeVPN Testbed")
+            description="Configures and runs EdgeVPN Testbed",
+            fromfile_prefix_chars='@')
         parser.add_argument("--clean", action="store_true", default=False, dest="clean",
                             help="Removes all generated files and directories")
-        parser.add_argument("--configure", action="store_true", default=False, dest="configure",
+
+        parser.add_argument("--configure", action="store", dest="configure", type=int,
                             help="Generates the config files and directories")
-        parser.add_argument("-v", action="store_true", default=False, dest="verbose",
-                            help="Print testbed activity info")
-        parser.add_argument("--range", action="store", dest="range",
-                            help="Specifies the testbed start and end range in format #,#")
-        parser.add_argument("--slice", action="store", dest="slice",
+
+        parser.add_argument("--slice", action="store", dest="slice", default=[], nargs=2,
                             help="Specifies the portion of the range to use. Given in format slice=#,#")
-        parser.add_argument("--run", action="store_true", default=False, dest="run",
+
+        parser.add_argument("-r", "--run", action="store_true", default=False, dest="run",
                             help="Runs the currently configured testbed")
-        parser.add_argument("--end", action="store_true", default=False, dest="end",
+
+        parser.add_argument("-e", "--end", action="store_true", default=False, dest="end",
                             help="End the currently running testbed")
-        parser.add_argument("--info", action="store_true", default=False, dest="info",
+
+        parser.add_argument("-i", "--info", action="store_true", default=False, dest="info",
                             help="Displays the current testbed configuration")
-        parser.add_argument("--setup", action="store_true", default=False, dest="setup",
-                            help="Installs software requirements. Requires run as root.")
-        parser.add_argument("--pull", action="store_true", default=False, dest="pull",
-                            help="Pulls the {} image from docker hub"
-                            .format(Testbed.BF_VIRT_IMG))
-        parser.add_argument("--lxd", action="store_true", default=False, dest="lxd",
-                            help="Uses LXC containers")
-        parser.add_argument("--dkr", action="store_true", default=False, dest="dkr",
-                            help="Use docker containers")
+
         parser.add_argument("--ping", action="store", dest="ping",
                             help="Ping the specified address from each container")
+
         parser.add_argument("--arp", action="store", dest="arp",
                             help="arPing the specified address from each container")
+
         parser.add_argument("--evio", action="store", dest="evio",
                             help="Perform the specified service action: stop/start/restart")
+
         parser.add_argument("--churn", action="store", dest="churn",
                             help="Restarts the specified amount of nodes in the overlay,"
                             "one every interval")
-        parser.add_argument("--test", action="store", dest="test",
+
+        parser.add_argument("-test", action="store_true", default=False, dest="test",
                             help="Performs latency and bandwidth test between random pairs of "
                             "nodes. Ex test=<test_name>")
+
+        parser.add_argument("-v", "--verbose", action="store_true", default=False, dest="verbose",
+                            help="Displays extended testbed activity")
 
         self.args = parser.parse_args()
         self.exp_dir = exp_dir
@@ -94,19 +95,12 @@ class Testbed():
         self.config_file_base = "{0}/config-".format(self.config_dir)
         self.seq_file = "{0}/startup.list".format(self.exp_dir)
         self.range_file = "{0}/range_file".format(self.exp_dir)
-
-        if self.args.range:
-            rng = self.args.range.strip().rsplit(",", 2)
-            self.range_end = int(rng[1]) + 1
-            self.range_start = int(rng[0])
-        elif not self.args.range and os.path.isfile("range_file"):
-            with open(self.range_file) as rng_fle:
-                self.args.range = rng_fle.read()
-                rng = self.args.range.strip().rsplit(",", 2)
-                self.range_end = int(rng[1]) + 1
-                self.range_start = int(rng[0])
-        else:
-            raise RuntimeError("Range unspecified")
+          
+        self.range_end = 2
+        self.range_start = 1
+        if os.path.isfile("range_file"):
+            with open(self.range_file, "rb") as rng_fle:
+                self.range_end = pickle.load(rng_fle) + 1
 
         self.seq_list : list
         self.load_seq_list()
@@ -114,19 +108,22 @@ class Testbed():
         self.slice_end = len(self.seq_list)
         self.slice_start = int(0)
         if self.args.slice:
-            slc = self.args.slice.rsplit(",", 2)
-            self.slice_end = int(slc[1])
-            self.slice_start = int(slc[0])
+            self.slice_end = int(self.args.slice[1])
+            self.slice_start = int(self.args.slice[0])
             
         self.total_inst = self.slice_end - self.slice_start
 
     @classmethod
-    def runshell(cls, cmd):
+    def runshell(cls, cmd, resultfile=None):
         """ Run a shell command. if fails, raise an exception. """
         if cmd[0] is None:
             raise ValueError("No executable specified to run")
-        resp = subprocess.run(cmd, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
+        if resultfile is None:
+            resp = subprocess.run(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        else:
+            with open(resultfile, "w") as outfile:
+                resp = subprocess.run(cmd, stdout=outfile)
         return resp
 
     @property
@@ -157,6 +154,10 @@ class Testbed():
             os.remove(self.seq_file)
             if self.args.verbose:
                 print("Removed file {}".format(self.seq_file))
+        if os.path.isfile(self.range_file):
+            os.remove(self.range_file)
+            if self.args.verbose:
+                print("Removed file {}".format(self.range_file))
 
     def make_clean(self):
         self.clean_config()
@@ -166,10 +167,18 @@ class Testbed():
                 print("Removed dir {}".format(self.log_dir))
 
     def configure(self):
-        with open(self.range_file, "w") as rng_fle:
-            rng_fle.write(self.args.range)
+        self.range_end = self.args.configure + 1
+        with open(self.range_file, "wb") as rng_fle:
+            pickle.dump(self.args.configure, rng_fle)
+            rng_fle.flush()
         self.gen_config(self.range_start, self.range_end)
+        self.gen_seq_list(self.range_start, self.range_end)
+        self.total_inst = self.range_end - self.range_start
         self.save_seq_list()
+
+    def gen_seq_list(self, start, end):
+        self.seq_list = list(range(start, end))
+        random.shuffle(self.seq_list)
 
     def save_seq_list(self):
         with open(self.seq_file, "wb") as seq_fle:
@@ -187,12 +196,10 @@ class Testbed():
                 print("Sequence list loaded from existing file -  {0} entries\n{1}".
                       format(len(self.seq_list), self.seq_list))
         else:
-            self.seq_list = list(range(self.range_start, self.range_end))
-            random.shuffle(self.seq_list)
+            self.gen_seq_list(self.range_start, self.range_end)
 
-    def start_range(self, num, wait):
+    def start_slice(self, num, wait):
         cnt = 0
-        #sequence = self.seq_list[self.range_start-1:self.range_end]
         sequence = self.seq_list[self.slice_start:self.slice_end]
         for inst in sequence:
             self.start_instance(inst)
@@ -204,28 +211,31 @@ class Testbed():
         print("{0} container(s) instantiated".format(cnt))
 
     def run(self):
-        self.start_range(Testbed.BATCH_SZ, Testbed.LAUNCH_WAIT)
+        self.start_slice(Testbed.BATCH_SZ, Testbed.LAUNCH_WAIT)
 
     def display_current_config(self):
         print("----Testbed Configuration----")
         print("Major:{0}, Minor:{1}, Revision:{2}, Build:{3}, Control:{4}, Official:{5}"
               .format(MAJOR_VER, MINOR_VER, REVISION_VER, self._bld_num, CONTROL_VER, OFFICIAL))
-        print("{0} instances range {1}-{2}".format(self.total_inst, self.slice_start,
-                                                   self.slice_end))
+        print("{0} instances, Range [{1}-{2}), Slice [{3}-{4})".format(self.total_inst, 
+                                                                       self.range_start,
+                                                                       self.range_end, 
+                                                                       self.slice_start,
+                                                                       self.slice_end))
         print("Config dir {0}".format(self.config_dir))
         print("Config base filename {0}".format(self.config_file_base))
         print("Log dir {0}".format(self.log_dir))
         print("Contianer image {0}".format(Testbed.BF_VIRT_IMG))
-        print("".format())
+        print("Sequence List: {}".format(self.seq_list))
 
-    def setup_system(self):
-        setup_cmds = [["./setup-system.sh"]]
-        for cmd_list in setup_cmds:
-            if self.args.verbose:
-                print(cmd_list)
-            resp = Testbed.runshell(cmd_list)
-            print(resp.stdout.decode("utf-8") if resp.returncode == 0 else
-                  resp.stderr.decode("utf-8"))
+    # def setup_system(self):
+    #     setup_cmds = [["./setup-system.sh"]]
+    #     for cmd_list in setup_cmds:
+    #         if self.args.verbose:
+    #             print(cmd_list)
+    #         resp = Testbed.runshell(cmd_list)
+    #         print(resp.stdout.decode("utf-8") if resp.returncode == 0 else
+    #               resp.stderr.decode("utf-8"))
 
     @abstractmethod
     def run_container_cmd(self, cmd_line, instance_num):
@@ -277,10 +287,6 @@ class DockerTestbed(Testbed):
     def __init__(self, exp_dir=None):
         super().__init__(exp_dir=exp_dir)
         self.network_name = "dkrnet"
-
-    # def configure(self):
-    #    super().configure()
-    #    self.pull_image()
 
     def create_network(self):
         # netid=docker network ls | grep dkrnet | awk 'BEGIN { FS=" "} {print $2}'
@@ -344,7 +350,6 @@ class DockerTestbed(Testbed):
               0 else resp.stderr.decode("utf-8"))
 
     def run_container_cmd(self, cmd_line, instance_num):
-        #report = dict(fail_count=0, fail_node=[])
         cmd_list = [DockerTestbed.VIRT, "exec", "-it"]
         inst = "{0:03}".format(instance_num)
         container = DockerTestbed.CONTAINER.format(inst)
@@ -354,17 +359,10 @@ class DockerTestbed(Testbed):
         if self.args.verbose:
             print(cmd_list)
             print(resp.stdout.decode("utf-8"))
-        # if resp.returncode != 0:
-        #    report["fail_count"] += 1
-        #    report["fail_node"].append("node-{0}".format(inst))
-        # rpt_msg = "{0}: {1}/{2} failed\n{3}".format(cmd_line, report["fail_count"],
-        #                                            self.range_end - self.range_start,
-        #                                            report["fail_node"])
-        # print(rpt_msg)
+
 
     def run_cmd_on_slice(self, cmd_line, delay=0):
         report = dict(fail_count=0, fail_node=[])
-        #for inst in self.seq_list[self.range_start-1:self.range_end]:
         for inst in self.seq_list[self.slice_start:self.slice_end]:
             cmd_list = [DockerTestbed.VIRT, "exec", "-it"]
             inst = "{0:03}".format(inst)
@@ -394,7 +392,6 @@ class DockerTestbed(Testbed):
     def stop_range(self):
         cnt = 0
         cmd_list = [DockerTestbed.VIRT, "kill"]
-        #sequence = self.seq_list[self.range_start-1:self.range_end]
         sequence = self.seq_list[self.slice_start:self.slice_end]
         for inst in sequence:
             cnt += 1
@@ -458,9 +455,54 @@ class DockerTestbed(Testbed):
         else:
             print("Invalid service control specified, only accepts start/stop/restart")
 
+    def eval_join_interval(self, inst, target_address, outfile):
+        cmd_list = [DockerTestbed.VIRT, "exec", "-it"]
+        container = DockerTestbed.CONTAINER.format(inst)
+        cmd_list.append(container)
+        cmd_list += ["ping", "-c40", "-D", "-A"]
+        cmd_list.append(target_address)
+        if self.args.verbose:
+            print(cmd_list)
+        Testbed.runshell(cmd_list, outfile)
+
+    
+    def stop_evio_svc(self, container):
+        cmd_list = [DockerTestbed.VIRT, "exec", "-it"]
+        cmd_list.append(container)
+        cmd_list += ["systemctl", "stop", "evio"]
+        if self.args.verbose:
+            print(cmd_list)
+        Testbed.runshell(cmd_list)
+    
+    def start_evio_svc(self, container):
+        cmd_list = [DockerTestbed.VIRT, "exec", "-it"]
+        cmd_list.append(container)
+        cmd_list += ["systemctl", "start", "evio"]
+        if self.args.verbose:
+            print(cmd_list)
+        Testbed.runshell(cmd_list)
+
+    def run_test(self):
+        delay = 30
+        netwk = ipaddress.IPv4Network("10.1.1.0/24")
+        #for inst in self.seq_list[self.slice_start:self.slice_end]:
+        inst=53
+        instance = "{0:03}".format(inst)        
+        container = DockerTestbed.CONTAINER.format(instance)
+        print(f"Stopping node {container} for {delay} seconds")
+        self.stop_evio_svc(container)
+        time.sleep(delay)
+        print(f"Starting node {container}")
+        self.start_evio_svc(container)
+        pingresult = "{0}/dkr{1}/ping-result.log".format(self.log_dir, instance)
+        self.eval_join_interval(instance, str(netwk[inst+1]), pingresult)
+
+        
 
 def main():  # pylint: disable=too-many-return-statements
     exp = DockerTestbed()
+
+    print(vars(exp.args))
 
     if exp.args.run and exp.args.end:
         print("Error! Both run and end were specified.")
@@ -470,13 +512,13 @@ def main():  # pylint: disable=too-many-return-statements
         exp.display_current_config()
         return
 
-    if exp.args.setup:
-        exp.setup_system()
-        return
+    # if exp.args.setup:
+    #     exp.setup_system()
+    #     return
 
-    if exp.args.pull:
-        exp.pull_image()
-        return
+    # if exp.args.pull:
+    #     exp.pull_image()
+    #     return
 
     if exp.args.clean:
         exp.make_clean()
