@@ -502,8 +502,6 @@ class DockerTestbed(Testbed):
 def main():  # pylint: disable=too-many-return-statements
     exp = DockerTestbed()
 
-    print(vars(exp.args))
-
     if exp.args.run and exp.args.end:
         print("Error! Both run and end were specified.")
         return
@@ -511,14 +509,6 @@ def main():  # pylint: disable=too-many-return-statements
     if exp.args.info:
         exp.display_current_config()
         return
-
-    # if exp.args.setup:
-    #     exp.setup_system()
-    #     return
-
-    # if exp.args.pull:
-    #     exp.pull_image()
-    #     return
 
     if exp.args.clean:
         exp.make_clean()
