@@ -9,11 +9,13 @@ fi
 PkgVer=$3
 PkgArch=$2
 OutDir=$1
-Deps="python3.8, python3.8-dev, python3.8-venv, python3-pip, python3-wheel, iproute2, openvswitch-switch, bridge-utils"
-if [ "$PkgArch" == "armhf" -o "$PkgArch" = "arm64" ]; then
-  Deps="libffi-dev, $Deps"
+if [ "$4" != "nodeps" ]; then
+    Deps="python3.9, python3.9-dev, python3.9-venv, python3-pip, python3-wheel, iproute2, openvswitch-switch"
+    if [ "$PkgArch" == "armhf" -o "$PkgArch" = "arm64" ]; then
+        Deps="libffi-dev, $Deps"
+    fi
 fi
-
+echo "install dependencies: $Deps"
 cat <<! > evio/DEBIAN/control
 Package: evio
 Name: EdgeVPNio
