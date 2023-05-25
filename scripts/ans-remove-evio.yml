@@ -1,9 +1,0 @@
----
-- hosts: evio21
-  tasks:
-  - name: Removing evio
-    apt: 
-      name: evio
-      state: absent
-    become: yes
-    become_method: sudo

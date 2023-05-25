@@ -14,7 +14,7 @@ except ImportError:
 config_file="/etc/opt/evio/config.json"
 nid_file="/var/opt/evio/nid"
 log_file="/var/log/evio/evio-control.log"
-server_addr="x.x.x.x:5802"
+server_addr=None
 logger=None
 
 def runcmd(cmd):
@@ -46,10 +46,19 @@ def node_id():
     with open(nid_file) as f:
         return f.readline().strip('\n')
     
-    
+def server_address():
+    with open(config_file) as f:
+        config = json.load(f)
+    if "OverlayVisualizer" in config:
+        return config["OverlayVisualizer"].get("WebServiceAddress")
+        
 def main():
     setup_logger()
     nid = node_id()
+    server_addr = server_address()
+    if server_addr is None:
+        logger.info("No web server address configured")
+        return
     url=f'http://{server_addr}/eviocontrol/?nodeid={nid}'
     resp=requests.get(url).json()
     logger.info(f"Server response: {resp}")
