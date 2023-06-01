@@ -115,9 +115,7 @@ class Versioning:
         self.args = parser.parse_args()
         if not self.args.wrksproot:
             self.args.wrksproot = os.getcwd()
-        self._tincan_path = os.path.join(
-            self.args.wrksproot, "EdgeVPNio/tincan/include/"
-        )
+        self._tincan_path = os.path.join(self.args.wrksproot, "EdgeVPNio/tincan/src/")
         self._tincan_version_fqn = os.path.join(self._tincan_path, "tincan_version.h")
         self._controller_path = os.path.join(
             self.args.wrksproot, "EdgeVPNio/evio/evio/broker/"
