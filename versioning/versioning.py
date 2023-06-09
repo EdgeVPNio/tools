@@ -1,16 +1,11 @@
 import argparse
-import fileinput
 import os
-import shutil
-import subprocess
-import sys
-import time
 
-from tool_config import CONTROL_VER as control
-from tool_config import MAJOR_VER as major
-from tool_config import MINOR_VER as minor
-from tool_config import OFFICIAL as official
-from tool_config import REVISION_VER as revision
+from config import CONTROL_VER as control
+from config import MAJOR_VER as major
+from config import MINOR_VER as minor
+from config import OFFICIAL as official
+from config import REVISION_VER as revision
 
 
 class Versioning:
