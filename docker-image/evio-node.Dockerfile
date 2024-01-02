@@ -7,8 +7,8 @@ RUN apt-get update && \
 FROM base AS evio-base
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
-RUN apt-get update && \
-    apt-get install -y \
+RUN apt-get update || true 
+RUN apt-get install -y \
         openvswitch-switch \
         iputils-ping \
         fping \
